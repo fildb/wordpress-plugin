@@ -20,19 +20,18 @@ const _startcase = (str) => {
     .join(" "); // Join the words back into a string
 };
 const navigation = [
-  {
-    name: "Dashboard",
-    href: "dashboard",
-    icon: Icons.DashboardIcon,
-    current: true,
-  },
-  {
-    name: "Inbox",
-    href: "inbox",
-    icon: Icons.CommonInboxIcon,
-    current: false,
-  },
-  
+  // {
+  //   name: "Dashboard",
+  //   href: "dashboard",
+  //   icon: Icons.DashboardIcon,
+  //   current: true,
+  // },
+  // {
+  //   name: "Inbox",
+  //   href: "inbox",
+  //   icon: Icons.CommonInboxIcon,
+  //   current: false,
+  // },
   {
     name: "Settings",
     href: "settings",
@@ -78,7 +77,9 @@ const ApplicationLayout = () => {
           <div className="flex flex-row  h-full w-full">
             <div className="w-60 border-r border-border-default">
               <div className="flex grow flex-col gap-y-5 overflow-y-auto  dark:bg-gray-900 bg-white pb-4">
-                <div style={{marginBottom:'3px'}} className="flex h-10 shrink-0 items-center pt-4 px-6">
+                <div
+                  style={{ marginBottom: "3px" }}
+                  className="flex h-10 shrink-0 items-center pt-4 px-6">
                   <Logo />
                   <p className="pl-2 font-semibold text-lg font-sans">
                     Plugin Name
@@ -133,17 +134,17 @@ const ApplicationLayout = () => {
                     <Button intent="icon">
                       <div className="flex flex-row gap-2 items-center justify-center">
                         <div className="flex gap-4">
-                        <ModeToggle />
+                          <ModeToggle />
                           <Avatar>
                             <AvatarImage
-                              src={wordpressPluginBoilerplate.userInfo.avatar}
-                              alt={wordpressPluginBoilerplate.userInfo.username}
+                              src={fdbAdmin.userInfo.avatar}
+                              alt={fdbAdmin.userInfo.username}
                             />
                             <AvatarFallback>CN</AvatarFallback>
                           </Avatar>
                         </div>
                         <div className="text-neutral-600 text-xs font-medium leading-none">
-                          {wordpressPluginBoilerplate.userInfo.username}
+                          {fdbAdmin.userInfo.username}
                         </div>
                         <div className="text-neutral-600 text-xs font-medium leading-none">
                           <Icons.DownIcon />
@@ -173,23 +174,17 @@ const ApplicationLayout = () => {
       ) : (
         <div className="w-full">
           <main className="bg-white dark:bg-gray-900 w-full  h-[calc(100vh-32px)] absolute">
-      
-              <div className="sticky flex justify-between h-16  items-center gap-x-4 border-b dark:bg-gray-900 bg-white border-border-default px-4 shadow-border sm:gap-x-6 sm:px-6">
-                <div className="font-medium text-xl">
-                  {_startcase(pageTitle)}
-                </div>
-                <div className="flex flex-row gap-2 items-center justify-center">
+            <div className="sticky flex justify-between h-16  items-center gap-x-4 border-b dark:bg-gray-900 bg-white border-border-default px-4 shadow-border sm:gap-x-6 sm:px-6">
+              <div className="font-medium text-xl">{_startcase(pageTitle)}</div>
+              <div className="flex flex-row gap-2 items-center justify-center">
                 <ModeToggle />
-                </div>
               </div>
-              <div>
-                <main className=" bg-white  top-0 b-0 ">
-                  <Outlet />
-                </main>
-              </div>
-       
-        
-         
+            </div>
+            <div>
+              <main className=" bg-white  top-0 b-0 ">
+                <Outlet />
+              </main>
+            </div>
           </main>
         </div>
       )}

@@ -1,15 +1,15 @@
 {
-    "plugin_name":"WordPress Plugin Boilerplate",
-    "plugin_description":"A boilerplate for WordPress plugins.",
-    "plugin_version":"1.0.0",
-    "plugin_file_name":"wordpress-plugin-boilerplate.php",
-    "author_name":"Prappo",
-    "author_uri":"https://prappo.github.io",
-    "text_domain":"wordpress-plugin-boilerplate",
-    "domain_path":"/languages",
-    "main_class_name":"WordPressPluginBoilerplate",
-    "main_function_name":"wordpress_plugin_boilerplate_init",
-    "namespace":"WordPressPluginBoilerplate",
-    "plugin_prefix":"wpb",
-    "constant_prefix":"WPB"
+  "plugin_name": "FiloDataBroker",
+  "plugin_description": "Automatically generates and manages llms.txt files according to the llmstxt.org standard with FiloDataBroker CDN integration.",
+  "plugin_version": "1.0.0",
+  "plugin_file_name": "fdb-wp-plugin.php",
+  "author_name": "Denis Perov",
+  "author_uri": "https://github.com/imajus",
+  "text_domain": "fdb-wp-plugin",
+  "domain_path": "/languages",
+  "main_class_name": "FiloDataBrokerPlugin",
+  "main_function_name": "fdb_wp_plugin_init",
+  "namespace": "FiloDataBrokerPlugin",
+  "plugin_prefix": "fdb",
+  "constant_prefix": "FDB"
 }

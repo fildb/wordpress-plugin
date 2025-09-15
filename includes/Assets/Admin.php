@@ -27,7 +27,7 @@ class Admin {
 	/**
 	 * JS Object name for FiloDataBrokerPlugin.
 	 */
-	const OBJ_NAME = 'wordpressPluginBoilerplate';
+	const OBJ_NAME = 'fdbAdmin';
 
 	/**
 	 * Development script path for FiloDataBrokerPlugin.
@@ -103,9 +103,10 @@ class Admin {
 	public function get_data() {
 
 		return array(
-			'developer' => 'prappo',
-			'isAdmin'   => is_admin(),
-			'apiUrl'    => rest_url(),
+			'nonce'   => wp_create_nonce( 'wp_rest' ),
+			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+			'isAdmin' => is_admin(),
+			'apiUrl'  => rest_url( FDBPLUGIN_ROUTE_PREFIX . '/' ),
 			'userInfo'  => $this->get_user_data(),
 		);
 	}

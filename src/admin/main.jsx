@@ -3,14 +3,15 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes";
-import { ThemeProvider } from "@/components/theme-provider"
-const el = document.getElementById("myplugin");
+import { ThemeProvider } from "@/components/theme-provider";
+const el = document.getElementById("fdb-admin-app");
 
 if (el) {
   ReactDOM.createRoot(el).render(
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-    <React.StrictMode>
-      <RouterProvider router={router} />
-    </React.StrictMode></ThemeProvider>,
+    <ThemeProvider defaultTheme="light" storageKey="fdb-admin-theme">
+      <React.StrictMode>
+        <RouterProvider router={router} />
+      </React.StrictMode>
+    </ThemeProvider>,
   );
 }

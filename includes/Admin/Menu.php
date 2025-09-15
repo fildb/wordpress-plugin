@@ -40,12 +40,12 @@ class Menu {
 	public function menu() {
 
 		add_menu_page(
-			__( 'MyPlugin', 'wordpress-plugin-boilerplate' ),
-			__( 'MyPlugin', 'wordpress-plugin-boilerplate' ),
+			__( 'FiloDataBroker', 'fdb-wp-plugin' ),
+			__( 'FiloDataBroker', 'fdb-wp-plugin' ),
 			'manage_options',
 			$this->parent_slug,
 			array( $this, 'admin_page' ),
-			'dashicons-email',
+			'dashicons-media-text',
 			3
 		);
 
@@ -60,37 +60,11 @@ class Menu {
 		$submenu_pages = array(
 			array(
 				'parent_slug' => $this->parent_slug,
-				'page_title'  => __( 'Dashboard', 'wordpress-plugin-boilerplate' ),
-				'menu_title'  => __( 'Dashboard', 'wordpress-plugin-boilerplate' ),
+				'page_title'  => __( 'Generator', 'fdb-wp-plugin' ),
+				'menu_title'  => __( 'Generator', 'fdb-wp-plugin' ),
 				'capability'  => 'manage_options',
 				'menu_slug'   => $this->parent_slug,
-				'function'    => array( $this, 'admin_page' ), // Uses the same callback function as parent menu.
-			),
-			array(
-				'parent_slug' => $this->parent_slug,
-				'page_title'  => __( 'Inbox', 'wordpress-plugin-boilerplate' ),
-				'menu_title'  => __( 'Inbox', 'wordpress-plugin-boilerplate' ),
-				'capability'  => 'manage_options',
-				'menu_slug'   => $plugin_url . '/#/inbox',
-				'function'    => null, // Uses the same callback function as parent menu.
-			),
-
-			array(
-				'parent_slug' => $this->parent_slug,
-				'page_title'  => __( 'Chart', 'wordpress-plugin-boilerplate' ),
-				'menu_title'  => __( 'Chart', 'wordpress-plugin-boilerplate' ),
-				'capability'  => 'manage_options',
-				'menu_slug'   => $plugin_url . '/#/charts',
-				'function'    => null, // Uses the same callback function as parent menu.
-			),
-
-			array(
-				'parent_slug' => $this->parent_slug,
-				'page_title'  => __( 'Settings', 'wordpress-plugin-boilerplate' ),
-				'menu_title'  => __( 'Settings', 'wordpress-plugin-boilerplate' ),
-				'capability'  => 'manage_options',
-				'menu_slug'   => $plugin_url . '/#/settings',
-				'function'    => null, // Uses the same callback function as parent menu.
+				'function'    => array( $this, 'admin_page' ),
 			),
 		);
 
@@ -110,13 +84,15 @@ class Menu {
 	}
 
 	/**
-	 * Callback function for the main "MyPlugin" menu page.
+	 * Callback function for the main "FiloDataBroker" menu page.
 	 *
 	 * @return void
 	 */
 	public function admin_page() {
 		?>
-		<div id="myplugin" class="myplugin-app"></div>
+		<div class="wrap">
+			<div id="fdb-admin-app"></div>
+		</div>
 		<?php
 	}
 }

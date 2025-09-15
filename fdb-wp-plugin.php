@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: FiloDataBroker Plugin
- * Description: WordPress plugin that automatically generates `llms.txt` file to help LLMs/AI systems better understand and navigate your website content.
+ * Plugin Name: FiloDataBroker
+ * Description: WordPress plugin that automatically generates `llms.txt` files according to llmstxt.org standard, with FiloDataBroker CDN integration for optimized AI/LLM content consumption.
  * Author: Denis Perov
  * Author URI: mailto:denis.perov@gmail.com
  * License: GPLv2
@@ -9,7 +9,7 @@
  * Text Domain: fdb-wp-plugin
  * Domain Path: /languages
  *
- * @package FiloDataBroker Plugin
+ * @package FiloDataBroker
  */
 
 use FiloDataBrokerPlugin\Core\Install;

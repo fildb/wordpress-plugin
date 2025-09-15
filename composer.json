@@ -1,0 +1,19 @@
+{
+  "name": "filodatabrokerplugin/fdbplugin",
+  "description": "Wordpress Plugin boilerplate",
+  "autoload": {
+    "psr-4": {
+      "FiloDataBrokerPlugin\\": "includes/",
+      "FiloDataBrokerPlugin\\Database\\": "database/",
+      "FiloDataBrokerPlugin\\Libs\\": "libs/"
+    },
+    "files": [
+      "libs/assets.php",
+      "libs/db.php",
+      "includes/functions.php"
+    ]
+  },
+  "require": {
+    "prappo/wp-eloquent": "^3.0"
+  }
+}

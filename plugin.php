@@ -54,7 +54,6 @@ final class FiloDataBrokerPlugin {
 		API::get_instance()->init();
 		Template::get_instance()->init();
 
-		add_action( 'init', array( $this, 'i18n' ) );
 		add_action( 'init', array( $this, 'register_blocks' ) );
 		add_action( 'init', array( $this, 'init_llm_hooks' ) );
 		add_action( 'fdb_auto_generate_llms', array( $this, 'auto_generate_llms' ) );
@@ -65,14 +64,6 @@ final class FiloDataBrokerPlugin {
 	}
 
 
-	/**
-	 * Internationalization setup for language translations.
-	 *
-	 * Loads the plugin text domain for localization.
-	 *
-	 * @since 1.0.0
-	 * @return void
-	 */
 	/**
 	 * Initialize LLM generation hooks
 	 *
@@ -149,12 +140,15 @@ final class FiloDataBrokerPlugin {
 	/**
 	 * Internationalization setup for language translations.
 	 *
-	 * Loads the plugin text domain for localization.
+	 * Note: Since WordPress 4.6, load_plugin_textdomain() is no longer needed
+	 * for plugins hosted on WordPress.org. WordPress automatically loads
+	 * translations when the text domain matches the plugin slug.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public function i18n() {
-		load_plugin_textdomain( 'fdb-wp-plugin', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+		// WordPress automatically loads translations since 4.6 for WordPress.org hosted plugins
+		// when text domain matches plugin folder name
 	}
 }

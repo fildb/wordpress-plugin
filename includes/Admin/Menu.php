@@ -40,8 +40,8 @@ class Menu {
 	public function menu() {
 
 		add_menu_page(
-			__( 'FiloDataBroker', 'fdb-wp-plugin' ),
-			__( 'FiloDataBroker', 'fdb-wp-plugin' ),
+			__( 'FiloDataBroker', 'filodatabroker' ),
+			__( 'FiloDataBroker', 'filodatabroker' ),
 			'manage_options',
 			$this->parent_slug,
 			array( $this, 'admin_page' ),
@@ -60,8 +60,8 @@ class Menu {
 		$submenu_pages = array(
 			array(
 				'parent_slug' => $this->parent_slug,
-				'page_title'  => __( 'Generator', 'fdb-wp-plugin' ),
-				'menu_title'  => __( 'Generator', 'fdb-wp-plugin' ),
+				'page_title'  => __( 'Generator', 'filodatabroker' ),
+				'menu_title'  => __( 'Generator', 'filodatabroker' ),
 				'capability'  => 'manage_options',
 				'menu_slug'   => $this->parent_slug,
 				'function'    => array( $this, 'admin_page' ),

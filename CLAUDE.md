@@ -100,6 +100,7 @@ API routes are defined in `includes/Routes/Api.php` using a Laravel-inspired rou
 - **Base Prefix**: Defined by `FDBPLUGIN_ROUTE_PREFIX` constant
 
 Example route structure:
+
 ```php
 Route::prefix(FDBPLUGIN_ROUTE_PREFIX, function(Route $route) {
     $route->get('/llm/settings', 'Controller@method');
@@ -125,6 +126,7 @@ The plugin follows a proper MVC separation:
 ### REST API Authentication Pattern
 
 Authentication is handled at the router level with:
+
 1. User login verification (`is_user_logged_in()`)
 2. Capability checking (`$user->has_cap('manage_options')`)
 3. Nonce verification for POST requests (`wp_verify_nonce($_SERVER['HTTP_X_WP_NONCE'], 'wp_rest')`)
@@ -132,6 +134,7 @@ Authentication is handled at the router level with:
 ### Data Flow Between PHP and JavaScript
 
 Data is passed from PHP to JavaScript using WordPress `wp_localize_script()`:
+
 - **PHP**: `includes/Assets/Admin.php` generates data via `get_data()` method
 - **JavaScript**: Access via `window.fdbAdmin` object (object name defined by `OBJ_NAME` constant)
 - **Nonce**: Generated with `wp_create_nonce('wp_rest')` and sent as `X-WP-Nonce` header
@@ -179,7 +182,7 @@ This plugin implements a feature to generate `llms.txt` files for WordPress site
 ### Development Notes
 
 - Uses WordPress REST API nonces (`wp_rest`) for security
-- Supports internationalization (i18n) with text domain `fdb-wp-plugin`
+- Supports internationalization (i18n) with text domain `filodatabroker`
 - Hot module reloading in development via Vite
 - Separate build processes for admin and frontend
 - WordPress block development with @wordpress/scripts

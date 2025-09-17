@@ -5,7 +5,7 @@
   "plugin_file_name": "fdb-wp-plugin.php",
   "author_name": "Denis Perov",
   "author_uri": "https://github.com/imajus",
-  "text_domain": "fdb-wp-plugin",
+  "text_domain": "filodatabroker",
   "domain_path": "/languages",
   "main_class_name": "FiloDataBrokerPlugin",
   "main_function_name": "fdb_wp_plugin_init",

@@ -66,6 +66,8 @@ class CDNClient {
 			'body'        => $body,
 		);
 
+		error_log('[CDN Client] Uploading to CDN: ' . self::CDN_ENDPOINT);
+
 		$response = wp_remote_post( self::CDN_ENDPOINT, $args );
 
 		if ( is_wp_error( $response ) ) {
@@ -100,6 +102,8 @@ class CDNClient {
 		}
 
 		$cdn_url = $decoded_response['url'];
+
+		error_log('[CDN Client] URL: ' . $cdn_url);
 
 		return array(
 			'success' => true,

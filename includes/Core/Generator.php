@@ -33,11 +33,21 @@ class Generator {
 	private $content_crawler;
 
 	/**
-	 * Constructor
+	 * Progress Manager instance
+	 *
+	 * @var ProgressManager
 	 */
-	public function __construct() {
-		$this->cdn_client      = new CDNClient();
-		$this->content_crawler = new ContentCrawler();
+	private $progress_manager;
+
+	/**
+	 * Constructor
+	 *
+	 * @param ProgressManager $progress_manager Optional progress manager instance
+	 */
+	public function __construct( $progress_manager = null ) {
+		$this->cdn_client        = new CDNClient();
+		$this->content_crawler   = new ContentCrawler();
+		$this->progress_manager  = $progress_manager;
 	}
 
 	/**
@@ -60,10 +70,21 @@ class Generator {
 		error_log( "[FDB Generator] Generation options: " . json_encode( $options ) );
 
 		try {
+			// Initialize progress tracking if we have a progress manager
+			if ( $this->progress_manager ) {
+				$total_posts = $this->calculate_total_posts( $options['post_types'], $options );
+				$this->progress_manager->initialize( $options['post_types'], $total_posts );
+				$this->progress_manager->update_operation( 'Initializing generation process' );
+			}
+
 			// Get site information
 			$site_title       = get_bloginfo( 'name' );
 			$site_description = get_bloginfo( 'description' );
 			error_log( "[FDB Generator] Site info - Title: $site_title, Description: $site_description" );
+
+			if ( $this->progress_manager ) {
+				$this->progress_manager->update_operation( 'Setting up LLMs.txt structure' );
+			}
 
 			// Create LlmsTxt instance
 			$llms_txt = new LlmsTxt();
@@ -78,6 +99,11 @@ class Generator {
 			// Process each post type
 			foreach ( $options['post_types'] as $post_type ) {
 				error_log( "[FDB Generator] Processing post type: $post_type" );
+
+				if ( $this->progress_manager ) {
+					$this->progress_manager->update_operation( "Processing {$post_type} content", $post_type );
+				}
+
 				$section = $this->create_section_for_post_type( $post_type, $options );
 				if ( $section ) {
 					$llms_txt->addSection( $section );
@@ -90,9 +116,17 @@ class Generator {
 
 			error_log( "[FDB Generator] Total sections added: $sections_added" );
 
+			if ( $this->progress_manager ) {
+				$this->progress_manager->update_operation( 'Generating final LLMs.txt file content' );
+			}
+
 			// Generate the llms.txt content
 			$llms_content = $llms_txt->toString();
 			error_log( "[FDB Generator] Generated llms.txt content length: " . strlen( $llms_content ) . " chars" );
+
+			if ( $this->progress_manager ) {
+				$this->progress_manager->update_operation( 'Saving LLMs.txt file to server' );
+			}
 
 			// Save to WordPress root (following reference implementation pattern)
 			$file_path = $this->get_llms_file_path();
@@ -101,6 +135,11 @@ class Generator {
 
 			if ( is_wp_error( $saved ) ) {
 				error_log( "[FDB Generator] ERROR saving file: " . $saved->get_error_message() );
+
+				if ( $this->progress_manager ) {
+					$this->progress_manager->fail_generation( $saved->get_error_message() );
+				}
+
 				return $saved;
 			}
 
@@ -108,11 +147,21 @@ class Generator {
 			update_option( 'fdb_llms_last_generated', current_time( 'timestamp' ) );
 			update_option( 'fdb_llms_file_size', strlen( $llms_content ) );
 
+			// Mark generation as completed
+			if ( $this->progress_manager ) {
+				$this->progress_manager->complete_generation( $file_path, strlen( $llms_content ) );
+			}
+
 			error_log( "[FDB Generator] llms.txt generation completed successfully" );
 			return true;
 
 		} catch ( \Exception $e ) {
 			error_log( "[FDB Generator] ERROR: Exception during generation: " . $e->getMessage() );
+
+			if ( $this->progress_manager ) {
+				$this->progress_manager->fail_generation( $e->getMessage() );
+			}
+
 			return new \WP_Error(
 				'llms_generation_failed',
 				'Failed to generate llms.txt: ' . $e->getMessage()
@@ -136,6 +185,11 @@ class Generator {
 
 		if ( empty( $posts ) ) {
 			error_log( "[FDB Generator] No posts found for $post_type, returning null section" );
+
+			if ( $this->progress_manager ) {
+				$this->progress_manager->complete_section( $post_type, 0 );
+			}
+
 			return null;
 		}
 
@@ -152,14 +206,33 @@ class Generator {
 		// Process posts and upload to CDN
 		foreach ( $posts as $post ) {
 			error_log( "[FDB Generator] Processing post ID {$post->ID}: {$post->post_title}" );
+
+			if ( $this->progress_manager ) {
+				$this->progress_manager->update_current_post( $post, 'processing' );
+			}
+
 			$link = $this->create_link_for_post( $post, $options );
 			if ( $link ) {
 				$section->addLink( $link );
 				$links_added++;
 				error_log( "[FDB Generator] Added link for post ID {$post->ID}" );
+
+				if ( $this->progress_manager ) {
+					$cdn_url = get_post_meta( $post->ID, '_fdb_cdn_url', true );
+					$this->progress_manager->complete_post( $post, $cdn_url );
+				}
 			} else {
 				error_log( "[FDB Generator] WARNING: Failed to create link for post ID {$post->ID}" );
+
+				if ( $this->progress_manager ) {
+					$this->progress_manager->fail_post( $post, 'Failed to create link for post' );
+				}
 			}
+		}
+
+		// Mark section as completed
+		if ( $this->progress_manager ) {
+			$this->progress_manager->complete_section( $post_type, $links_added );
 		}
 
 		error_log( "[FDB Generator] Section '$section_name' created with $links_added links" );
@@ -182,23 +255,65 @@ class Generator {
 
 		if ( empty( $content ) ) {
 			error_log( "[FDB Generator] WARNING: Empty content extracted for post ID {$post->ID}, returning null link" );
+
+			if ( $this->progress_manager ) {
+				$this->progress_manager->fail_post( $post, 'Empty content extracted' );
+			}
+
 			return null;
 		}
 
-		// Generate filename
-		$filename = $this->generate_filename( $post );
-		error_log( "[FDB Generator] Generated filename: $filename" );
+		// Check if we already have a CDN URL for this content
+		$content_hash = md5( $content );
+		$stored_cdn_url = get_post_meta( $post->ID, '_fdb_cdn_url', true );
+		$stored_content_hash = get_post_meta( $post->ID, '_fdb_content_hash', true );
 
-		// Upload to CDN
-		$upload_result = $this->cdn_client->upload_content( $content, $filename );
+		$cdn_url = null;
 
-		if ( is_wp_error( $upload_result ) ) {
-			// Log error but continue with other posts
-			error_log( "[FDB Generator] ERROR: CDN upload failed for post {$post->ID}: " . $upload_result->get_error_message() );
-			return null;
+		if ( ! empty( $stored_cdn_url ) && $stored_content_hash === $content_hash ) {
+			// Content hasn't changed, reuse existing CDN URL
+			error_log( "[FDB Generator] Reusing existing CDN URL for post {$post->ID}: {$stored_cdn_url}" );
+			$cdn_url = $stored_cdn_url;
+		} else {
+			// Content changed or no stored URL, upload to CDN
+			error_log( "[FDB Generator] Content changed or no stored URL, uploading to CDN for post {$post->ID}" );
+
+			// Generate filename
+			$filename = $this->generate_filename( $post );
+			error_log( "[FDB Generator] Generated filename: $filename" );
+
+			// Update progress to show content extraction completed
+			if ( $this->progress_manager ) {
+				$this->progress_manager->update_operation( "Uploading {$post->post_title} to CDN", $post->post_type );
+			}
+
+			// Update progress for uploading
+			if ( $this->progress_manager ) {
+				$this->progress_manager->update_current_post( $post, 'uploading' );
+			}
+
+			// Upload to CDN
+			$upload_result = $this->cdn_client->upload_content( $content, $filename );
+
+			if ( is_wp_error( $upload_result ) ) {
+				// Log error but continue with other posts
+				error_log( "[FDB Generator] ERROR: CDN upload failed for post {$post->ID}: " . $upload_result->get_error_message() );
+
+				if ( $this->progress_manager ) {
+					$this->progress_manager->fail_post( $post, $upload_result->get_error_message() );
+				}
+
+				return null;
+			}
+
+			$cdn_url = $upload_result['url'];
+			error_log( "[FDB Generator] CDN upload successful for post {$post->ID}, URL: " . $cdn_url );
+
+			// Store new CDN URL and content hash in metadata
+			update_post_meta( $post->ID, '_fdb_cdn_url', $cdn_url );
+			update_post_meta( $post->ID, '_fdb_cdn_upload_time', current_time( 'timestamp' ) );
+			update_post_meta( $post->ID, '_fdb_content_hash', $content_hash );
 		}
-
-		error_log( "[FDB Generator] CDN upload successful for post {$post->ID}, URL: " . $upload_result['url'] );
 
 		// Create description
 		$description = $this->generate_post_description( $post, $options );
@@ -207,7 +322,7 @@ class Generator {
 		// Create link
 		$link = new Link();
 		$link->urlTitle( $post->post_title );
-		$link->url( $upload_result['url'] );
+		$link->url( $cdn_url );
 
 		if ( ! empty( $description ) ) {
 			$link->urlDetails( $description );
@@ -257,7 +372,7 @@ class Generator {
 	 *
 	 * @return string File path for llms.txt
 	 */
-	private function get_llms_file_path() {
+	public function get_llms_file_path() {
 		if ( defined( 'FLYWHEEL_PLUGIN_DIR' ) ) {
 			return trailingslashit( dirname( ABSPATH ) ) . 'www/' . 'llms.txt';
 		} else {
@@ -272,7 +387,7 @@ class Generator {
 	 * @param string $content File content
 	 * @return bool|WP_Error True on success, WP_Error on failure
 	 */
-	private function save_llms_file( $file_path, $content ) {
+	public function save_llms_file( $file_path, $content ) {
 		// Initialize WordPress filesystem
 		global $wp_filesystem;
 
@@ -360,4 +475,130 @@ class Generator {
 
 		return true;
 	}
+
+	/**
+	 * Calculate total number of posts across all post types
+	 *
+	 * @param array $post_types Array of post type names
+	 * @param array $options Generation options
+	 * @return int Total number of posts
+	 */
+	public function calculate_total_posts( $post_types, $options ) {
+		$total = 0;
+
+		foreach ( $post_types as $post_type ) {
+			$posts = $this->content_crawler->get_posts_for_type( $post_type, $options );
+			$total += count( $posts );
+		}
+
+		return $total;
+	}
+
+	/**
+	 * Build processing queue for polling mechanism
+	 *
+	 * @param array $post_types Array of post type names
+	 * @param array $options Generation options
+	 * @return array Queue of items to process
+	 */
+	public function build_processing_queue( $post_types, $options ) {
+		$queue = array();
+
+		error_log( "[FDB Generator] Building queue for post types: " . wp_json_encode( $post_types ) );
+
+		foreach ( $post_types as $post_type ) {
+			$posts = $this->content_crawler->get_posts_for_type( $post_type, $options );
+
+			error_log( "[FDB Generator] Found " . count( $posts ) . " posts for type: {$post_type}" );
+
+			foreach ( $posts as $post ) {
+				$queue[] = array(
+					'post' => $post,
+					'post_type' => $post_type,
+					'options' => $options
+				);
+			}
+		}
+
+		error_log( "[FDB Generator] Built processing queue with " . count( $queue ) . " items" );
+		return $queue;
+	}
+
+	/**
+	 * Process a single item from the queue
+	 *
+	 * @param array $item Queue item containing post, post_type, and options
+	 * @return array|\WP_Error Result with cdn_url or WP_Error on failure
+	 */
+	public function process_single_item( $item ) {
+		$post = $item['post'];
+		$options = $item['options'];
+
+		try {
+			error_log( "[FDB Generator] Processing single item: post ID {$post->ID}" );
+
+			if ( $this->progress_manager ) {
+				$this->progress_manager->update_current_post( $post, 'processing' );
+			}
+
+			// Extract content
+			$content = $this->content_crawler->extract_post_content( $post, $options );
+
+			if ( empty( $content ) ) {
+				error_log( "[FDB Generator] WARNING: Empty content extracted for post ID {$post->ID}" );
+				return new \WP_Error( 'empty_content', 'Empty content extracted for post: ' . $post->post_title );
+			}
+
+			// Check if we already have a CDN URL for this content
+			$content_hash = md5( $content );
+			$stored_cdn_url = get_post_meta( $post->ID, '_fdb_cdn_url', true );
+			$stored_content_hash = get_post_meta( $post->ID, '_fdb_content_hash', true );
+
+			$cdn_url = null;
+
+			if ( ! empty( $stored_cdn_url ) && $stored_content_hash === $content_hash ) {
+				// Content hasn't changed, reuse existing CDN URL
+				error_log( "[FDB Generator] Reusing existing CDN URL for post {$post->ID}: {$stored_cdn_url}" );
+				$cdn_url = $stored_cdn_url;
+			} else {
+				// Content changed or no stored URL, upload to CDN
+				error_log( "[FDB Generator] Content changed or no stored URL, uploading to CDN for post {$post->ID}" );
+
+				// Generate filename
+				$filename = $this->generate_filename( $post );
+
+				if ( $this->progress_manager ) {
+					$this->progress_manager->update_current_post( $post, 'uploading' );
+				}
+
+				// Upload to CDN
+				$upload_result = $this->cdn_client->upload_content( $content, $filename );
+
+				if ( is_wp_error( $upload_result ) ) {
+					error_log( "[FDB Generator] ERROR: CDN upload failed for post {$post->ID}: " . $upload_result->get_error_message() );
+					return $upload_result;
+				}
+
+				$cdn_url = $upload_result['url'];
+				error_log( "[FDB Generator] CDN upload successful for post {$post->ID}, URL: " . $cdn_url );
+
+				// Store new CDN URL and content hash in metadata
+				update_post_meta( $post->ID, '_fdb_cdn_url', $cdn_url );
+				update_post_meta( $post->ID, '_fdb_cdn_upload_time', current_time( 'timestamp' ) );
+				update_post_meta( $post->ID, '_fdb_content_hash', $content_hash );
+			}
+
+			return array(
+				'cdn_url' => $cdn_url,
+				'post_id' => $post->ID,
+				'post_title' => $post->post_title,
+				'file_size' => strlen( $content )
+			);
+
+		} catch ( \Exception $e ) {
+			error_log( "[FDB Generator] ERROR: Exception processing post ID {$post->ID}: " . $e->getMessage() );
+			return new \WP_Error( 'processing_exception', 'Exception processing post: ' . $e->getMessage() );
+		}
+	}
+
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,7 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, AlertCircle, CheckCircle } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Loader2, AlertCircle, CheckCircle, FileText } from "lucide-react";
 
 export default function LLMGenerator() {
   const [settings, setSettings] = useState({
@@ -28,6 +29,8 @@ export default function LLMGenerator() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState(null);
+  const [progress, setProgress] = useState(null);
+  const canceledRef = useRef(false);
 
   // Load initial data
   useEffect(() => {
@@ -122,8 +125,20 @@ export default function LLMGenerator() {
     }
   };
 
-  const generateFile = async () => {
-    setIsGenerating(true);
+  const processGeneration = async (isStart = false) => {
+    // Check if canceled
+    if (canceledRef.current) {
+      setIsGenerating(false);
+      setMessage({
+        type: "warning",
+        text: "Generation was canceled",
+      });
+      setTimeout(() => {
+        setProgress(null);
+      }, 3000);
+      return;
+    }
+
     try {
       const response = await fetch(`${window.fdbAdmin.apiUrl}llm/generate`, {
         method: "POST",
@@ -131,27 +146,77 @@ export default function LLMGenerator() {
           "Content-Type": "application/json",
           "X-WP-Nonce": window.fdbAdmin.nonce,
         },
+        body: isStart ? JSON.stringify({ start: "1" }) : undefined,
       });
 
-      if (response.ok) {
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to process generation");
+      }
+
+      const data = await response.json();
+      setProgress(data);
+
+      if (data.finished) {
+        // Generation completed
+        setIsGenerating(false);
         setMessage({
           type: "success",
           text: "LLM file generated successfully!",
         });
-        loadStatus(); // Refresh status
+        loadStatus();
+        setTimeout(() => {
+          setProgress(null);
+        }, 3000);
       } else {
-        const errorData = await response.json();
-        setMessage({
-          type: "error",
-          text: errorData.message || "Failed to generate file",
-        });
+        // Continue with next item after a short delay
+        setTimeout(() => {
+          processGeneration(false).catch((error) => {
+            console.error("Error in recursive processing:", error);
+            setIsGenerating(false);
+            setMessage({
+              type: "error",
+              text: "Processing failed: " + error.message,
+            });
+            setTimeout(() => {
+              setProgress(null);
+            }, 3000);
+          });
+        }, 200);
       }
     } catch (error) {
-      setMessage({ type: "error", text: "Failed to generate file" });
-    } finally {
+      console.error("Error during processing:", error);
       setIsGenerating(false);
-      setTimeout(() => setMessage(null), 3000);
+      setMessage({
+        type: "error",
+        text: error.message || "An unexpected error occurred",
+      });
+      setTimeout(() => {
+        setProgress(null);
+      }, 3000);
     }
+  };
+
+  const generateFile = async () => {
+    setIsGenerating(true);
+    canceledRef.current = false;
+    setMessage(null);
+
+    // Show progress bar instantly with initial state
+    setProgress({
+      finished: false,
+      items: { parsed: 0, total: 0 },
+      last: null,
+    });
+
+    // Start the recursive processing
+    processGeneration(true);
+  };
+
+
+  const cancelGeneration = () => {
+    canceledRef.current = true;
+    setIsGenerating(false);
   };
 
   const handlePostTypeChange = (postType, checked) => {
@@ -165,21 +230,73 @@ export default function LLMGenerator() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
-        <Button
-          onClick={generateFile}
-          disabled={isGenerating}
-          className="bg-blue-600 hover:bg-blue-700">
-          {isGenerating ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generating...
-            </>
-          ) : (
-            "Generate Now"
+      <div className="flex justify-between items-center">
+        <div></div>
+        <div className="flex gap-2">
+          {isGenerating && (
+            <Button
+              onClick={cancelGeneration}
+              variant="outline"
+              className="border-red-300 text-red-600 hover:bg-red-50">
+              Cancel
+            </Button>
           )}
-        </Button>
+          <Button
+            onClick={generateFile}
+            disabled={isGenerating}
+            className="bg-blue-600 hover:bg-blue-700">
+            {isGenerating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              "Generate Now"
+            )}
+          </Button>
+        </div>
       </div>
+
+      {progress && (
+        <Card className="border-blue-200 bg-blue-50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-blue-800">Generation Progress</CardTitle>
+            <CardDescription className="text-blue-600">
+              Processing items...
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Progress</span>
+                <span>
+                  {progress.items.parsed} / {progress.items.total}
+                </span>
+              </div>
+              <Progress
+                value={
+                  progress.items.total > 0
+                    ? (progress.items.parsed / progress.items.total) * 100
+                    : 0
+                }
+                className="h-2"
+              />
+            </div>
+
+            {progress.last && (
+              <div className="text-sm">
+                <Label className="text-xs text-muted-foreground">
+                  Last Processed
+                </Label>
+                <p className="font-medium flex items-center gap-1">
+                  <FileText className="h-3 w-3" />
+                  {progress.last.title} ({progress.last.type})
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {message && (
         <Alert

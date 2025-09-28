@@ -9,9 +9,7 @@ const el = document.getElementById("fdb-admin-app");
 if (el) {
   ReactDOM.createRoot(el).render(
     <ThemeProvider defaultTheme="light" storageKey="fdb-admin-theme">
-      <React.StrictMode>
-        <RouterProvider router={router} />
-      </React.StrictMode>
+      <RouterProvider router={router} />
     </ThemeProvider>,
   );
 }

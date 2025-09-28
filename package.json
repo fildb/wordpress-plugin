@@ -14,6 +14,8 @@
     "format:fix": "prettier --write .",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "version": "grunt change_version && git add .",
+    "postversion": "git push && git push --tags",
     "release": "npm run build && grunt release",
     "rename": "grunt rename --force && npm run change-text-domain && composer dump-autoload",
     "change-text-domain": "grunt change-text-domain --force",

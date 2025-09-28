@@ -2,9 +2,6 @@ const grunt = require("grunt");
 const pkg = require("./package.json");
 const config = require("./plugin-config.json");
 const loadGruntTasks = require("load-grunt-tasks");
-const { version } = require("os");
-const { default: path } = require("path");
-const { recursive } = require("replace/bin/shared-options");
 
 // Define files to include/exclude in the release package
 const distFiles = [
@@ -125,10 +122,22 @@ grunt.initConfig({
       path: config.plugin_file_name,
       recursive: false,
     },
-    change_version: {
+    change_version_entry: {
       pattern: "Version: [0-9]+\\.[0-9]+\\.[0-9]+",
-      replacement: `Version: ${config.plugin_version}`,
+      replacement: `Version: ${pkg.version}`,
       path: config.plugin_file_name,
+      recursive: false,
+    },
+    change_version_config: {
+      pattern: '"plugin_version": "[0-9]+\\.[0-9]+\\.[0-9]+"',
+      replacement: `"plugin_version": "${pkg.version}"`,
+      path: "plugin-config.json",
+      recursive: false,
+    },
+    change_version_readme: {
+      pattern: "Stable tag: [0-9]+\\.[0-9]+\\.[0-9]+",
+      replacement: `Stable tag: ${pkg.version}`,
+      path: "readme.txt",
       recursive: false,
     },
     change_plugin_text_domain: {
@@ -325,6 +334,14 @@ grunt.initConfig({
 
 // Load all grunt tasks automatically
 loadGruntTasks(grunt);
+
+// Register combined version update task
+grunt.registerTask("change_version", [
+  "sed:change_version_config",
+  "sed:change_version_entry",
+  "sed:change_version_readme"
+]);
+
 
 // Register 'release' task to copy files and create a zip archive
 grunt.registerTask("release", [

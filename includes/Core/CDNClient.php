@@ -18,6 +18,7 @@ class CDNClient {
 	 * CDN API endpoint URL
 	 */
 	const CDN_ENDPOINT = 'https://fildb.majus.app/api/upload';
+	// const CDN_ENDPOINT = 'http://localhost:3000/api/upload';
 
 	/**
 	 * Upload content to CDN

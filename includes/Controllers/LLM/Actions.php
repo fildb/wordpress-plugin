@@ -373,5 +373,70 @@ class Actions {
 		return $posts_with_urls;
 	}
 
+	/**
+	 * Clear custom metadata from all posts and pages
+	 *
+	 * @param \WP_REST_Request $request Request object
+	 * @return \WP_REST_Response|\WP_Error REST response
+	 */
+	public function clear_metadata( $request = null ) {
+		try {
+			// Get all posts and pages with any plugin metadata
+			$posts = get_posts( array(
+				'post_type'   => array( 'post', 'page' ),
+				'post_status' => array( 'publish', 'private', 'draft', 'pending' ),
+				'numberposts' => -1, // Get all posts
+				'meta_query'  => array(
+					'relation' => 'OR',
+					array(
+						'key'     => '_fidabr_cdn_url',
+						'compare' => 'EXISTS'
+					),
+					array(
+						'key'     => '_fidabr_content_hash',
+						'compare' => 'EXISTS'
+					),
+					array(
+						'key'     => '_fidabr_cdn_upload_time',
+						'compare' => 'EXISTS'
+					)
+				)
+			) );
+
+			$cleared_count = 0;
+			$plugin_meta_keys = array(
+				'_fidabr_cdn_url',
+				'_fidabr_content_hash',
+				'_fidabr_cdn_upload_time'
+			);
+
+			foreach ( $posts as $post ) {
+				$post_had_metadata = false;
+
+				// Delete all plugin-specific metadata
+				foreach ( $plugin_meta_keys as $meta_key ) {
+					$deleted = delete_post_meta( $post->ID, $meta_key );
+					if ( $deleted ) {
+						$post_had_metadata = true;
+					}
+				}
+
+				if ( $post_had_metadata ) {
+					$cleared_count++;
+				}
+			}
+
+			error_log( "[FIDABR Actions] Cleared metadata from {$cleared_count} posts/pages" );
+
+			return rest_ensure_response( array(
+				'message' => "Successfully cleared metadata from {$cleared_count} posts/pages.",
+				'cleared_count' => $cleared_count
+			) );
+
+		} catch ( \Exception $e ) {
+			error_log( "[FIDABR Actions] ERROR: Exception clearing metadata: " . $e->getMessage() );
+			return new \WP_Error( 'clear_metadata_failed', 'Failed to clear metadata: ' . $e->getMessage(), array( 'status' => 500 ) );
+		}
+	}
 
 }

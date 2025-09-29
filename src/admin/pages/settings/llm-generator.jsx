@@ -28,6 +28,7 @@ export default function LLMGenerator() {
   const [status, setStatus] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const [message, setMessage] = useState(null);
   const [progress, setProgress] = useState(null);
   const canceledRef = useRef(false);
@@ -221,6 +222,57 @@ export default function LLMGenerator() {
     setIsGenerating(false);
   };
 
+  const clearMetadata = async () => {
+    if (
+      !confirm(
+        "Are you sure you want to clear all custom metadata from posts and pages? This action cannot be undone.",
+      )
+    ) {
+      return;
+    }
+
+    setIsClearing(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch(
+        `${window.fidabrAdmin.apiUrl}llm/clear-metadata`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-WP-Nonce": window.fidabrAdmin.nonce,
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage({
+          type: "success",
+          text: `Successfully cleared metadata from ${
+            data.cleared_count || 0
+          } posts/pages.`,
+        });
+        loadStatus(); // Refresh status after clearing
+      } else {
+        setMessage({
+          type: "error",
+          text: data.message || "Failed to clear metadata",
+        });
+      }
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: "Failed to clear metadata: " + error.message,
+      });
+    } finally {
+      setIsClearing(false);
+      setTimeout(() => setMessage(null), 5000);
+    }
+  };
+
   const handlePostTypeChange = (postType, checked) => {
     setSettings((prev) => ({
       ...prev,
@@ -244,8 +296,22 @@ export default function LLMGenerator() {
             </Button>
           )}
           <Button
+            onClick={clearMetadata}
+            disabled={isGenerating || isClearing}
+            variant="outline"
+            className="border-orange-300 text-orange-600 hover:bg-orange-50">
+            {isClearing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Clearing...
+              </>
+            ) : (
+              "Clear Metadata"
+            )}
+          </Button>
+          <Button
             onClick={generateFile}
-            disabled={isGenerating}
+            disabled={isGenerating || isClearing}
             className="bg-blue-600 hover:bg-blue-700">
             {isGenerating ? (
               <>

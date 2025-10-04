@@ -4,7 +4,7 @@
  * Description: WordPress plugin that automatically generates `llms.txt` files according to llmstxt.org standard, with FiloDataBroker CDN integration for optimized AI/LLM content consumption.
  * Author: Denis Perov
  * License: GPLv2
- * Version: 1.0.0
+ * Version: 1.1.0
  * Text Domain: fidabr
  * Domain Path: /languages
  *

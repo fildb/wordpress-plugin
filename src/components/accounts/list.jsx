@@ -5,7 +5,9 @@ import DeleteWindow from "./window/delete";
 
 const fetchData = async () => {
   try {
-    const response = await fetch(fdbAdmin.apiUrl + "myplugin/v1/accounts/get");
+    const response = await fetch(
+      fidabrAdmin.apiUrl + "myplugin/v1/accounts/get",
+    );
     if (!response.ok) {
       throw new Error("Network response was not ok.");
     }
@@ -20,7 +22,7 @@ const fetchData = async () => {
 const deleteAccount = async () => {
   try {
     const response = await fetch(
-      fdbAdmin.apiUrl + "myplugin/v1/accounts/delete",
+      fidabrAdmin.apiUrl + "myplugin/v1/accounts/delete",
     );
     if (!response.ok) {
       throw new Error("Network response was not ok");

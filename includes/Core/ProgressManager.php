@@ -19,7 +19,7 @@ class ProgressManager {
 	 *
 	 * @var string
 	 */
-	const TRANSIENT_KEY = 'fdb_llm_progress_active';
+	const TRANSIENT_KEY = 'fidabr_llm_progress_active';
 
 	/**
 	 * Constructor
@@ -55,7 +55,7 @@ class ProgressManager {
 		);
 
 		$this->save_progress( $progress_data );
-		error_log( "[FDB ProgressManager] Initialized generation with {$total_posts} total posts" );
+		error_log( "[FIDABR ProgressManager] Initialized generation with {$total_posts} total posts" );
 	}
 
 	/**
@@ -77,7 +77,7 @@ class ProgressManager {
 		$progress_data['updated_at'] = current_time( 'timestamp' );
 
 		$this->save_progress( $progress_data );
-		error_log( "[FDB ProgressManager] Operation: {$operation}" . ( $post_type ? " (Post Type: {$post_type})" : '' ) );
+		error_log( "[FIDABR ProgressManager] Operation: {$operation}" . ( $post_type ? " (Post Type: {$post_type})" : '' ) );
 	}
 
 	/**
@@ -102,7 +102,7 @@ class ProgressManager {
 		$progress_data['updated_at'] = current_time( 'timestamp' );
 
 		$this->save_progress( $progress_data );
-		error_log( "[FDB ProgressManager] Processing post ID {$post->ID}: {$post->post_title} (Status: {$status})" );
+		error_log( "[FIDABR ProgressManager] Processing post ID {$post->ID}: {$post->post_title} (Status: {$status})" );
 	}
 
 	/**
@@ -132,7 +132,7 @@ class ProgressManager {
 		$progress_data['updated_at'] = current_time( 'timestamp' );
 
 		$this->save_progress( $progress_data );
-		error_log( "[FDB ProgressManager] Completed post ID {$post->ID}: {$post->post_title} ({$progress_data['processed_posts']}/{$progress_data['total_posts']})" );
+		error_log( "[FIDABR ProgressManager] Completed post ID {$post->ID}: {$post->post_title} ({$progress_data['processed_posts']}/{$progress_data['total_posts']})" );
 	}
 
 	/**
@@ -166,7 +166,7 @@ class ProgressManager {
 		$progress_data['updated_at'] = current_time( 'timestamp' );
 
 		$this->save_progress( $progress_data );
-		error_log( "[FDB ProgressManager] Failed post ID {$post->ID}: {$post->post_title} - {$error_message}" );
+		error_log( "[FIDABR ProgressManager] Failed post ID {$post->ID}: {$post->post_title} - {$error_message}" );
 	}
 
 	/**
@@ -195,7 +195,7 @@ class ProgressManager {
 		$progress_data['updated_at'] = current_time( 'timestamp' );
 
 		$this->save_progress( $progress_data );
-		error_log( "[FDB ProgressManager] Completed section '{$section_name}' with {$posts_processed} posts" );
+		error_log( "[FIDABR ProgressManager] Completed section '{$section_name}' with {$posts_processed} posts" );
 	}
 
 	/**
@@ -221,7 +221,7 @@ class ProgressManager {
 		$progress_data['updated_at'] = current_time( 'timestamp' );
 
 		$this->save_progress( $progress_data );
-		error_log( "[FDB ProgressManager] Generation completed successfully. File: {$file_path} ({$file_size} bytes)" );
+		error_log( "[FIDABR ProgressManager] Generation completed successfully. File: {$file_path} ({$file_size} bytes)" );
 	}
 
 	/**
@@ -248,7 +248,7 @@ class ProgressManager {
 		$progress_data['updated_at'] = current_time( 'timestamp' );
 
 		$this->save_progress( $progress_data );
-		error_log( "[FDB ProgressManager] Generation failed: {$error_message}" );
+		error_log( "[FIDABR ProgressManager] Generation failed: {$error_message}" );
 	}
 
 	/**
@@ -271,7 +271,7 @@ class ProgressManager {
 		set_transient( self::TRANSIENT_KEY, $progress_data, HOUR_IN_SECONDS );
 
 		// Emit WordPress action for real-time SSE updates
-		do_action( 'fdb_progress_update', $progress_data );
+		do_action( 'fidabr_progress_update', $progress_data );
 	}
 
 	/**
@@ -295,7 +295,7 @@ class ProgressManager {
 	 */
 	public function cleanup() {
 		delete_transient( self::TRANSIENT_KEY );
-		error_log( "[FDB ProgressManager] Cleaned up generation progress" );
+		error_log( "[FIDABR ProgressManager] Cleaned up generation progress" );
 	}
 
 	/**
@@ -341,7 +341,7 @@ class ProgressManager {
 		$progress_data['updated_at'] = current_time( 'timestamp' );
 
 		$this->save_progress( $progress_data );
-		error_log( "[FDB ProgressManager] Set processing queue with " . count( $queue ) . " items" );
+		error_log( "[FIDABR ProgressManager] Set processing queue with " . count( $queue ) . " items" );
 	}
 
 	/**
@@ -388,7 +388,7 @@ class ProgressManager {
 		$progress_data['updated_at'] = current_time( 'timestamp' );
 
 		$this->save_progress( $progress_data );
-		error_log( "[FDB ProgressManager] Incremented processed posts to {$progress_data['processed_posts']}/{$progress_data['total_posts']}" );
+		error_log( "[FIDABR ProgressManager] Incremented processed posts to {$progress_data['processed_posts']}/{$progress_data['total_posts']}" );
 	}
 
 	/**

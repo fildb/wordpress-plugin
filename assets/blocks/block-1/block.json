@@ -1,7 +1,7 @@
 {
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
-  "name": "wordpress-plugin-boilerplate/block-1",
+  "name": "fidabr/block-1",
   "version": "1.0.0",
   "title": "WPB Block 1",
   "category": "widgets",
@@ -11,7 +11,7 @@
   "supports": {
     "html": false
   },
-  "textdomain": "wordpress-plugin-boilerplate",
+  "textdomain": "fidabr",
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",
   "style": "file:./style-index.css",

@@ -5,7 +5,7 @@
  * Author: Denis Perov
  * License: GPLv2
  * Version: 1.0.0
- * Text Domain: filodatabroker
+ * Text Domain: fidabr
  * Domain Path: /languages
  *
  * @package FiloDataBroker
@@ -24,12 +24,12 @@ require_once plugin_dir_path( __FILE__ ) . 'plugin.php';
  * @since 1.0.0
  * @return void
  */
-function fdb_plugin_init() {
+function fidabr_plugin_init() {
 	FiloDataBrokerPlugin::get_instance()->init();
 }
 
 // Hook for plugin initialization.
-add_action( 'plugins_loaded', 'fdb_plugin_init' );
+add_action( 'plugins_loaded', 'fidabr_plugin_init' );
 
 // Hook for plugin activation.
 register_activation_hook( __FILE__, array( Install::get_instance(), 'init' ) );

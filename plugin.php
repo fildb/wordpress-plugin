@@ -27,12 +27,12 @@ final class FiloDataBrokerPlugin {
 	 * @return void
 	 */
 	public function __construct() {
-		define( 'FDBPLUGIN_VERSION', '1.0.0' );
-		define( 'FDBPLUGIN_PLUGIN_FILE', __FILE__ );
-		define( 'FDBPLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-		define( 'FDBPLUGIN_URL', plugin_dir_url( __FILE__ ) );
-		define( 'FDBPLUGIN_ASSETS_URL', FDBPLUGIN_URL . '/assets' );
-		define( 'FDBPLUGIN_ROUTE_PREFIX', 'wordpress-plugin-boilerplate/v1' );
+		define( 'FIDABR_PLUGIN_VERSION', '1.0.0' );
+		define( 'FIDABR_PLUGIN_PLUGIN_FILE', __FILE__ );
+		define( 'FIDABR_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+		define( 'FIDABR_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+		define( 'FIDABR_PLUGIN_ASSETS_URL', FIDABR_PLUGIN_URL . '/assets' );
+		define( 'FIDABR_PLUGIN_ROUTE_PREFIX', 'fidabr/v1' );
 	}
 
 	/**
@@ -56,11 +56,11 @@ final class FiloDataBrokerPlugin {
 
 		add_action( 'init', array( $this, 'register_blocks' ) );
 		add_action( 'init', array( $this, 'init_llm_hooks' ) );
-		add_action( 'fdb_auto_generate_llms', array( $this, 'auto_generate_llms' ) );
+		add_action( 'fidabr_auto_generate_llms', array( $this, 'auto_generate_llms' ) );
 	}
 
 	public function register_blocks() {
-		register_block_type( __DIR__ . '/assets/blocks/block-1' );
+		// register_block_type( __DIR__ . '/assets/blocks/block-1' );
 	}
 
 
@@ -91,12 +91,12 @@ final class FiloDataBrokerPlugin {
 			return;
 		}
 
-		$settings = get_option( 'fdb_llm_settings', array() );
+		$settings = get_option( 'fidabr_llm_settings', array() );
 		
 		// Check if auto-update is enabled and this post type is included
 		if ( ! empty( $settings['auto_update'] ) && in_array( $post->post_type, (array) ( $settings['post_types'] ?? array() ), true ) ) {
 			// Schedule generation for next cron run to avoid slowing down post saves
-			wp_schedule_single_event( time() + 60, 'fdb_auto_generate_llms' );
+			wp_schedule_single_event( time() + 60, 'fidabr_auto_generate_llms' );
 		}
 	}
 
@@ -113,12 +113,12 @@ final class FiloDataBrokerPlugin {
 			return;
 		}
 
-		$settings = get_option( 'fdb_llm_settings', array() );
+		$settings = get_option( 'fidabr_llm_settings', array() );
 		
 		// Check if auto-update is enabled and this post type is included
 		if ( ! empty( $settings['auto_update'] ) && in_array( $post->post_type, (array) ( $settings['post_types'] ?? array() ), true ) ) {
 			// Schedule generation for next cron run
-			wp_schedule_single_event( time() + 60, 'fdb_auto_generate_llms' );
+			wp_schedule_single_event( time() + 60, 'fidabr_auto_generate_llms' );
 		}
 	}
 
@@ -130,7 +130,7 @@ final class FiloDataBrokerPlugin {
 	 */
 	public function auto_generate_llms() {
 		$generator = new Generator();
-		$settings = get_option( 'fdb_llm_settings', array() );
+		$settings = get_option( 'fidabr_llm_settings', array() );
 		
 		if ( ! empty( $settings['auto_update'] ) ) {
 			$generator->generate_llms_file( $settings );

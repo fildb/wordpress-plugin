@@ -137,14 +137,14 @@ const ApplicationLayout = () => {
                           <ModeToggle />
                           <Avatar>
                             <AvatarImage
-                              src={fdbAdmin.userInfo.avatar}
-                              alt={fdbAdmin.userInfo.username}
+                              src={fidabrAdmin.userInfo.avatar}
+                              alt={fidabrAdmin.userInfo.username}
                             />
                             <AvatarFallback>CN</AvatarFallback>
                           </Avatar>
                         </div>
                         <div className="text-neutral-600 text-xs font-medium leading-none">
-                          {fdbAdmin.userInfo.username}
+                          {fidabrAdmin.userInfo.username}
                         </div>
                         <div className="text-neutral-600 text-xs font-medium leading-none">
                           <Icons.DownIcon />

@@ -1,6 +1,6 @@
 {
-  "name": "filodatabrokerplugin/fdbplugin",
-  "description": "Wordpress Plugin boilerplate",
+  "name": "fidabr/wordpress-plugin",
+  "description": "FiloDataBroker Wordpress Plugin",
   "autoload": {
     "psr-4": {
       "FiloDataBrokerPlugin\\": "includes/",

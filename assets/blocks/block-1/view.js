@@ -1,1 +1,1 @@
-(()=>{"use strict";console.log("Hello World! from wordpress-plugin-boilerplate")})();
+(()=>{"use strict";console.log("Hello World! from FiloDataBroker")})();

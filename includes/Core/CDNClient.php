@@ -17,7 +17,7 @@ class CDNClient {
 	/**
 	 * CDN API endpoint URL
 	 */
-	const CDN_ENDPOINT = 'https://n8n.majus.org/webhook/70b814af-c541-4aed-b65f-7665413dffd6';
+	const CDN_ENDPOINT = 'https://fildb.majus.app/api/upload';
 
 	/**
 	 * Upload content to CDN
@@ -60,7 +60,7 @@ class CDNClient {
 			'blocking'    => true,
 			'headers'     => array(
 				'Content-Type' => 'multipart/form-data; boundary=' . $boundary,
-				'User-Agent'   => 'fdb-wp-plugin/' . FDBPLUGIN_VERSION,
+				'User-Agent'   => 'fidabr/wordpress-plugin@' . FIDABR_PLUGIN_VERSION,
 				'Authorization' => 'Bearer *****', // Placeholder token
 			),
 			'body'        => $body,

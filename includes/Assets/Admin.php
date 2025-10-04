@@ -22,12 +22,12 @@ class Admin {
 	/**
 	 * Script handle for FiloDataBrokerPlugin.
 	 */
-	const HANDLE = 'wordpress-plugin-boilerplate';
+	const HANDLE = 'fidabr';
 
 	/**
 	 * JS Object name for FiloDataBrokerPlugin.
 	 */
-	const OBJ_NAME = 'fdbAdmin';
+	const OBJ_NAME = 'fidabrAdmin';
 
 	/**
 	 * Development script path for FiloDataBrokerPlugin.
@@ -40,7 +40,7 @@ class Admin {
 	 * @var array
 	 */
 	private $allowed_screens = array(
-		'toplevel_page_wordpress-plugin-boilerplate',
+		'toplevel_page_fidabr',
 	);
 
 	/**
@@ -74,7 +74,7 @@ class Admin {
 
 		if ( in_array( $current_screen, $this->allowed_screens, true ) ) {
 			Assets\enqueue_asset(
-				FDBPLUGIN_DIR . '/assets/admin/dist',
+				FIDABR_PLUGIN_DIR . '/assets/admin/dist',
 				self::DEV_SCRIPT,
 				$this->get_config()
 			);
@@ -106,7 +106,7 @@ class Admin {
 			'nonce'   => wp_create_nonce( 'wp_rest' ),
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 			'isAdmin' => is_admin(),
-			'apiUrl'  => rest_url( FDBPLUGIN_ROUTE_PREFIX . '/' ),
+			'apiUrl'  => rest_url( FIDABR_PLUGIN_ROUTE_PREFIX . '/' ),
 			'userInfo'  => $this->get_user_data(),
 		);
 	}

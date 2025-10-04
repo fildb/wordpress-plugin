@@ -17,7 +17,7 @@ class Template {
 
 	const FRONTEND_TEMPLATE      = 'frontend-template.php';
 	const FRONTEND_TEMPLATE_NAME = 'FiloDataBrokerPlugin';
-	const FRONTEND_TEMPLATE_SLUG = 'wordpress-plugin-boilerplate';
+	const FRONTEND_TEMPLATE_SLUG = 'fidabr';
 
 	/**
 	 * Initialize the class.
@@ -48,7 +48,7 @@ class Template {
 	 */
 	public function load_custom_template( $template ) {
 		if ( get_page_template_slug() === self::FRONTEND_TEMPLATE ) {
-			$template_file_dir = FDBPLUGIN_DIR . 'views/templates/' . self::FRONTEND_TEMPLATE;
+			$template_file_dir = FIDABR_PLUGIN_DIR . 'views/templates/' . self::FRONTEND_TEMPLATE;
 
 			if ( file_exists( $template_file_dir ) ) {
 				return $template_file_dir;

@@ -68,7 +68,7 @@ npm run build-storybook    # Build Storybook for production
 
 - **Namespace**: `FiloDataBrokerPlugin`
 - **Main Class**: `FiloDataBrokerPlugin` in `plugin.php`
-- **Entry Point**: `fdb-wp-plugin.php`
+- **Entry Point**: `fidabr-plugin.php`
 - **Plugin Configuration**: `plugin-config.json`
 
 ### Directory Structure
@@ -97,12 +97,12 @@ API routes are defined in `includes/Routes/Api.php` using a Laravel-inspired rou
 - **Authentication**: Applied at the route level using `->auth()` method with closures
 - **Nonce Verification**: REST API routes use `wp_rest` nonces for POST requests
 - **Permission Checking**: Routes verify `manage_options` capability for admin functions
-- **Base Prefix**: Defined by `FDBPLUGIN_ROUTE_PREFIX` constant
+- **Base Prefix**: Defined by `FIDABR_PLUGIN_ROUTE_PREFIX` constant
 
 Example route structure:
 
 ```php
-Route::prefix(FDBPLUGIN_ROUTE_PREFIX, function(Route $route) {
+Route::prefix(FIDABR_PLUGIN_ROUTE_PREFIX, function(Route $route) {
     $route->get('/llm/settings', 'Controller@method');
     $route->post('/llm/settings', 'Controller@method');
 })->auth(function() {
@@ -136,7 +136,7 @@ Authentication is handled at the router level with:
 Data is passed from PHP to JavaScript using WordPress `wp_localize_script()`:
 
 - **PHP**: `includes/Assets/Admin.php` generates data via `get_data()` method
-- **JavaScript**: Access via `window.fdbAdmin` object (object name defined by `OBJ_NAME` constant)
+- **JavaScript**: Access via `window.fidabrAdmin` object (object name defined by `OBJ_NAME` constant)
 - **Nonce**: Generated with `wp_create_nonce('wp_rest')` and sent as `X-WP-Nonce` header
 
 ### Frontend Stack
@@ -182,7 +182,7 @@ This plugin implements a feature to generate `llms.txt` files for WordPress site
 ### Development Notes
 
 - Uses WordPress REST API nonces (`wp_rest`) for security
-- Supports internationalization (i18n) with text domain `filodatabroker`
+- Supports internationalization (i18n) with text domain `fidabr`
 - Hot module reloading in development via Vite
 - Separate build processes for admin and frontend
 - WordPress block development with @wordpress/scripts
@@ -193,18 +193,18 @@ This plugin implements a feature to generate `llms.txt` files for WordPress site
 
 Key constants defined in `plugin.php`:
 
-- `FDBPLUGIN_VERSION` - Plugin version
-- `FDBPLUGIN_DIR` - Plugin directory path
-- `FDBPLUGIN_URL` - Plugin URL
-- `FDBPLUGIN_ASSETS_URL` - Assets URL
-- `FDBPLUGIN_ROUTE_PREFIX` - API route prefix
+- `FIDABR_PLUGIN_VERSION` - Plugin version
+- `FIDABR_PLUGIN_DIR` - Plugin directory path
+- `FIDABR_PLUGIN_URL` - Plugin URL
+- `FIDABR_PLUGIN_ASSETS_URL` - Assets URL
+- `FIDABR_PLUGIN_ROUTE_PREFIX` - API route prefix
 
 ### Adding New API Routes
 
 Add routes in `includes/Routes/Api.php`:
 
 ```php
-Route::prefix(FDBPLUGIN_ROUTE_PREFIX, function(Route $route) {
+Route::prefix(FIDABR_PLUGIN_ROUTE_PREFIX, function(Route $route) {
     $route->get('/endpoint', '\FiloDataBrokerPlugin\Controllers\ControllerName@method');
     $route->post('/endpoint', '\FiloDataBrokerPlugin\Controllers\ControllerName@method');
 })->auth(function() {

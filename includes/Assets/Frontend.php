@@ -22,7 +22,7 @@ class Frontend {
 	/**
 	 * Script handle for FiloDataBrokerPlugin.
 	 */
-	const HANDLE = 'wordpress-plugin-boilerplate-frontend';
+	const HANDLE = 'fidabr-frontend';
 
 	/**
 	 * JS Object name for FiloDataBrokerPlugin.
@@ -40,7 +40,7 @@ class Frontend {
 	 * @var array
 	 */
 	private $allowed_screens = array(
-		'toplevel_page_wordpress-plugin-boilerplate',
+		'toplevel_page_fidabr',
 	);
 
 	/**
@@ -74,7 +74,7 @@ class Frontend {
 
 		if ( in_array( $current_screen, $this->allowed_screens, true ) ) {
 			Assets\enqueue_asset(
-				FDBPLUGIN_DIR . '/assets/frontend/dist',
+				FIDABR_PLUGIN_DIR . '/assets/frontend/dist',
 				self::DEV_SCRIPT,
 				$this->get_config()
 			);

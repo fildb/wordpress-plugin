@@ -22,7 +22,7 @@ class API {
 	 * @return void
 	 */
 	public function init() {
-		Config::set_route_file( FDBPLUGIN_DIR . '/includes/Routes/Api.php' )
+		Config::set_route_file( FIDABR_PLUGIN_DIR . '/includes/Routes/Api.php' )
 			->set_namespace( 'FiloDataBrokerPlugin\Api' )
 			->init();
 	}

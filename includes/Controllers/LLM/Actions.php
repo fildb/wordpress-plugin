@@ -116,7 +116,7 @@ class Actions {
 			// Check if this is starting fresh or continuing
 			$is_generation_active = ProgressManager::is_generation_active();
 
-			error_log( "[FDB Actions] is_start: " . ( $is_start ? 'true' : 'false' ) . ", generation_active: " . ( $is_generation_active ? 'true' : 'false' ) );
+			error_log( "[FIDABR Actions] is_start: " . ( $is_start ? 'true' : 'false' ) . ", generation_active: " . ( $is_generation_active ? 'true' : 'false' ) );
 
 			if ( $is_start ) {
 				// Starting fresh - clear any existing progress
@@ -128,7 +128,7 @@ class Actions {
 				// Initialize new generation
 				$settings = $this->settings->get_settings();
 
-				error_log( "[FDB Actions] Settings post_types: " . wp_json_encode( $settings['post_types'] ) );
+				error_log( "[FIDABR Actions] Settings post_types: " . wp_json_encode( $settings['post_types'] ) );
 
 				if ( empty( $settings['post_types'] ) ) {
 					return new \WP_Error( 'no_post_types', 'No post types selected for generation', array( 'status' => 400 ) );
@@ -149,7 +149,7 @@ class Actions {
 				$progress_data['settings'] = $settings;
 				$progress_manager->save_progress( $progress_data );
 
-				error_log( "[FDB Actions] Started new generation with {$total_posts} posts" );
+				error_log( "[FIDABR Actions] Started new generation with {$total_posts} posts" );
 
 			} else {
 				// Continue existing generation
@@ -242,7 +242,7 @@ class Actions {
 			// Get updated progress
 			$updated_progress = $progress_manager->get_progress();
 
-			error_log( "[FDB Actions] Returning progress - parsed: {$updated_progress['processed_posts']}, total: {$updated_progress['total_posts']}" );
+			error_log( "[FIDABR Actions] Returning progress - parsed: {$updated_progress['processed_posts']}, total: {$updated_progress['total_posts']}" );
 
 			return rest_ensure_response( array(
 				'finished' => false,
@@ -254,7 +254,7 @@ class Actions {
 			) );
 
 		} catch ( \Exception $e ) {
-			error_log( "[FDB Actions] ERROR: Exception during generation: " . $e->getMessage() );
+			error_log( "[FIDABR Actions] ERROR: Exception during generation: " . $e->getMessage() );
 			return new \WP_Error( 'generation_exception', 'Generation failed: ' . $e->getMessage(), array( 'status' => 500 ) );
 		}
 	}
@@ -267,16 +267,16 @@ class Actions {
 	 */
 	private function create_final_llms_file( $settings ) {
 		try {
-			error_log( "[FDB Actions] Creating final llms.txt file from cached CDN URLs" );
+			error_log( "[FIDABR Actions] Creating final llms.txt file from cached CDN URLs" );
 
 			// Validate settings
 			if ( ! is_array( $settings ) ) {
-				error_log( "[FDB Actions] ERROR: Invalid settings provided to create_final_llms_file" );
+				error_log( "[FIDABR Actions] ERROR: Invalid settings provided to create_final_llms_file" );
 				return new \WP_Error( 'invalid_settings', 'Invalid settings provided for final file creation', array( 'status' => 500 ) );
 			}
 
 			if ( empty( $settings['post_types'] ) || ! is_array( $settings['post_types'] ) ) {
-				error_log( "[FDB Actions] ERROR: No valid post_types found in settings" );
+				error_log( "[FIDABR Actions] ERROR: No valid post_types found in settings" );
 				return new \WP_Error( 'no_post_types', 'No valid post types found in settings', array( 'status' => 500 ) );
 			}
 
@@ -322,10 +322,10 @@ class Actions {
 			}
 
 			// Update WordPress meta
-			update_option( 'fdb_llms_last_generated', current_time( 'timestamp' ) );
-			update_option( 'fdb_llms_file_size', strlen( $content ) );
+			update_option( 'fidabr_llms_last_generated', current_time( 'timestamp' ) );
+			update_option( 'fidabr_llms_file_size', strlen( $content ) );
 
-			error_log( "[FDB Actions] Final llms.txt file created successfully with {$total_links} links" );
+			error_log( "[FIDABR Actions] Final llms.txt file created successfully with {$total_links} links" );
 
 			return array(
 				'file_path' => $file_path,
@@ -333,7 +333,7 @@ class Actions {
 			);
 
 		} catch ( \Exception $e ) {
-			error_log( "[FDB Actions] ERROR: Exception creating final file: " . $e->getMessage() );
+			error_log( "[FIDABR Actions] ERROR: Exception creating final file: " . $e->getMessage() );
 			return new \WP_Error( 'create_final_file_failed', 'Failed to create final file: ' . $e->getMessage(), array( 'status' => 500 ) );
 		}
 	}
@@ -352,7 +352,7 @@ class Actions {
 			'numberposts' => $settings['max_posts_per_type'] ?? 50,
 			'meta_query'  => array(
 				array(
-					'key'     => '_fdb_cdn_url',
+					'key'     => '_fidabr_cdn_url',
 					'compare' => 'EXISTS'
 				)
 			)
@@ -360,7 +360,7 @@ class Actions {
 
 		$posts_with_urls = array();
 		foreach ( $posts as $post ) {
-			$cdn_url = get_post_meta( $post->ID, '_fdb_cdn_url', true );
+			$cdn_url = get_post_meta( $post->ID, '_fidabr_cdn_url', true );
 			if ( ! empty( $cdn_url ) ) {
 				$posts_with_urls[] = array(
 					'id'       => $post->ID,

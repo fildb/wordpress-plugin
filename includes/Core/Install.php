@@ -33,7 +33,7 @@ class Install {
 	 * @return void
 	 */
 	private function install_pages() {
-		fdbplugin_install_page(
+		fidabr_plugin_install_page(
 			Template::FRONTEND_TEMPLATE_NAME,
 			Template::FRONTEND_TEMPLATE_SLUG,
 			Template::FRONTEND_TEMPLATE

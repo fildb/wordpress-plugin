@@ -339,9 +339,8 @@ loadGruntTasks(grunt);
 grunt.registerTask("change_version", [
   "sed:change_version_config",
   "sed:change_version_entry",
-  "sed:change_version_readme"
+  "sed:change_version_readme",
 ]);
-
 
 // Register 'release' task to copy files and create a zip archive
 grunt.registerTask("release", [

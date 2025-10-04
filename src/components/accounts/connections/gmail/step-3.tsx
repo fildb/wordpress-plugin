@@ -104,7 +104,7 @@ export default function Step3({ stepCount }: StepProps) {
 
     try {
       const response = await fetch(
-        fdbAdmin.apiUrl + "myplugin/v1/accounts/create",
+        fidabrAdmin.apiUrl + "myplugin/v1/accounts/create",
         {
           method: "POST",
           headers: {

@@ -20,7 +20,7 @@ class Menu {
 	 *
 	 * @var string
 	 */
-	private $parent_slug = 'wordpress-plugin-boilerplate';
+	private $parent_slug = 'fidabr';
 
 	/**
 	 * Initializes the admin menu.
@@ -40,8 +40,8 @@ class Menu {
 	public function menu() {
 
 		add_menu_page(
-			__( 'FiloDataBroker', 'filodatabroker' ),
-			__( 'FiloDataBroker', 'filodatabroker' ),
+			__( 'FiloDataBroker', 'fidabr' ),
+			__( 'FiloDataBroker', 'fidabr' ),
 			'manage_options',
 			$this->parent_slug,
 			array( $this, 'admin_page' ),
@@ -60,15 +60,15 @@ class Menu {
 		$submenu_pages = array(
 			array(
 				'parent_slug' => $this->parent_slug,
-				'page_title'  => __( 'Generator', 'filodatabroker' ),
-				'menu_title'  => __( 'Generator', 'filodatabroker' ),
+				'page_title'  => __( 'Generator', 'fidabr' ),
+				'menu_title'  => __( 'Generator', 'fidabr' ),
 				'capability'  => 'manage_options',
 				'menu_slug'   => $this->parent_slug,
 				'function'    => array( $this, 'admin_page' ),
 			),
 		);
 
-		$plugin_submenu_pages = apply_filters( 'fdbplugin_submenu_pages', $submenu_pages );
+		$plugin_submenu_pages = apply_filters( 'fidabr_plugin_submenu_pages', $submenu_pages );
 
 		foreach ( $plugin_submenu_pages as $submenu ) {
 
@@ -91,7 +91,7 @@ class Menu {
 	public function admin_page() {
 		?>
 		<div class="wrap">
-			<div id="fdb-admin-app"></div>
+			<div id="fidabr-admin-app"></div>
 		</div>
 		<?php
 	}

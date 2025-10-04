@@ -12,7 +12,7 @@ namespace FiloDataBrokerPlugin\Routes;
 use FiloDataBrokerPlugin\Libs\API\Route;
 
 Route::prefix(
-	FDBPLUGIN_ROUTE_PREFIX,
+	FIDABR_PLUGIN_ROUTE_PREFIX,
 	function ( Route $route ) {
 		// Define accounts API routes.
 		// $route->post( '/accounts/create', '\FiloDataBrokerPlugin\Controllers\Accounts\Actions@create' );
@@ -29,7 +29,7 @@ Route::prefix(
 		$route->get( '/llm/status', '\FiloDataBrokerPlugin\Controllers\LLM\Actions@get_status' );
 		$route->post( '/llm/generate', '\FiloDataBrokerPlugin\Controllers\LLM\Actions@generate_file' );
 		// Allow hooks to add more custom API routes.
-		do_action( 'fdbplugin_api', $route );
+		do_action( 'fidabr_plugin_api', $route );
 	}
 )->auth( function() {
 	// Check if user is logged in

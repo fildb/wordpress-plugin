@@ -57,7 +57,7 @@ class Generator {
 	 * @return bool|WP_Error True on success, WP_Error on failure
 	 */
 	public function generate_llms_file( $options = array() ) {
-		error_log( "[FDB Generator] Starting llms.txt generation" );
+		error_log( "[FIDABR Generator] Starting llms.txt generation" );
 
 		$default_options = array(
 			'post_types'         => array( 'post', 'page' ),
@@ -67,7 +67,7 @@ class Generator {
 		);
 
 		$options = wp_parse_args( $options, $default_options );
-		error_log( "[FDB Generator] Generation options: " . json_encode( $options ) );
+		error_log( "[FIDABR Generator] Generation options: " . json_encode( $options ) );
 
 		try {
 			// Initialize progress tracking if we have a progress manager
@@ -80,7 +80,7 @@ class Generator {
 			// Get site information
 			$site_title       = get_bloginfo( 'name' );
 			$site_description = get_bloginfo( 'description' );
-			error_log( "[FDB Generator] Site info - Title: $site_title, Description: $site_description" );
+			error_log( "[FIDABR Generator] Site info - Title: $site_title, Description: $site_description" );
 
 			if ( $this->progress_manager ) {
 				$this->progress_manager->update_operation( 'Setting up LLMs.txt structure' );
@@ -98,7 +98,7 @@ class Generator {
 
 			// Process each post type
 			foreach ( $options['post_types'] as $post_type ) {
-				error_log( "[FDB Generator] Processing post type: $post_type" );
+				error_log( "[FIDABR Generator] Processing post type: $post_type" );
 
 				if ( $this->progress_manager ) {
 					$this->progress_manager->update_operation( "Processing {$post_type} content", $post_type );
@@ -108,13 +108,13 @@ class Generator {
 				if ( $section ) {
 					$llms_txt->addSection( $section );
 					$sections_added++;
-					error_log( "[FDB Generator] Added section for $post_type" );
+					error_log( "[FIDABR Generator] Added section for $post_type" );
 				} else {
-					error_log( "[FDB Generator] WARNING: No section created for $post_type" );
+					error_log( "[FIDABR Generator] WARNING: No section created for $post_type" );
 				}
 			}
 
-			error_log( "[FDB Generator] Total sections added: $sections_added" );
+			error_log( "[FIDABR Generator] Total sections added: $sections_added" );
 
 			if ( $this->progress_manager ) {
 				$this->progress_manager->update_operation( 'Generating final LLMs.txt file content' );
@@ -122,7 +122,7 @@ class Generator {
 
 			// Generate the llms.txt content
 			$llms_content = $llms_txt->toString();
-			error_log( "[FDB Generator] Generated llms.txt content length: " . strlen( $llms_content ) . " chars" );
+			error_log( "[FIDABR Generator] Generated llms.txt content length: " . strlen( $llms_content ) . " chars" );
 
 			if ( $this->progress_manager ) {
 				$this->progress_manager->update_operation( 'Saving LLMs.txt file to server' );
@@ -130,11 +130,11 @@ class Generator {
 
 			// Save to WordPress root (following reference implementation pattern)
 			$file_path = $this->get_llms_file_path();
-			error_log( "[FDB Generator] Saving to file path: $file_path" );
+			error_log( "[FIDABR Generator] Saving to file path: $file_path" );
 			$saved = $this->save_llms_file( $file_path, $llms_content );
 
 			if ( is_wp_error( $saved ) ) {
-				error_log( "[FDB Generator] ERROR saving file: " . $saved->get_error_message() );
+				error_log( "[FIDABR Generator] ERROR saving file: " . $saved->get_error_message() );
 
 				if ( $this->progress_manager ) {
 					$this->progress_manager->fail_generation( $saved->get_error_message() );
@@ -144,19 +144,19 @@ class Generator {
 			}
 
 			// Update last generation time
-			update_option( 'fdb_llms_last_generated', current_time( 'timestamp' ) );
-			update_option( 'fdb_llms_file_size', strlen( $llms_content ) );
+			update_option( 'fidabr_llms_last_generated', current_time( 'timestamp' ) );
+			update_option( 'fidabr_llms_file_size', strlen( $llms_content ) );
 
 			// Mark generation as completed
 			if ( $this->progress_manager ) {
 				$this->progress_manager->complete_generation( $file_path, strlen( $llms_content ) );
 			}
 
-			error_log( "[FDB Generator] llms.txt generation completed successfully" );
+			error_log( "[FIDABR Generator] llms.txt generation completed successfully" );
 			return true;
 
 		} catch ( \Exception $e ) {
-			error_log( "[FDB Generator] ERROR: Exception during generation: " . $e->getMessage() );
+			error_log( "[FIDABR Generator] ERROR: Exception during generation: " . $e->getMessage() );
 
 			if ( $this->progress_manager ) {
 				$this->progress_manager->fail_generation( $e->getMessage() );
@@ -177,14 +177,14 @@ class Generator {
 	 * @return Section|null Section instance or null if no posts found
 	 */
 	private function create_section_for_post_type( $post_type, $options ) {
-		error_log( "[FDB Generator] Creating section for post type: $post_type" );
+		error_log( "[FIDABR Generator] Creating section for post type: $post_type" );
 
 		// Get posts from content crawler
 		$posts = $this->content_crawler->get_posts_for_type( $post_type, $options );
-		error_log( "[FDB Generator] Retrieved " . count( $posts ) . " posts for $post_type" );
+		error_log( "[FIDABR Generator] Retrieved " . count( $posts ) . " posts for $post_type" );
 
 		if ( empty( $posts ) ) {
-			error_log( "[FDB Generator] No posts found for $post_type, returning null section" );
+			error_log( "[FIDABR Generator] No posts found for $post_type, returning null section" );
 
 			if ( $this->progress_manager ) {
 				$this->progress_manager->complete_section( $post_type, 0 );
@@ -196,7 +196,7 @@ class Generator {
 		// Create section
 		$post_type_obj = get_post_type_object( $post_type );
 		$section_name  = $post_type_obj ? $post_type_obj->labels->name : ucfirst( $post_type );
-		error_log( "[FDB Generator] Creating section named: $section_name" );
+		error_log( "[FIDABR Generator] Creating section named: $section_name" );
 
 		$section = new Section();
 		$section->name( $section_name );
@@ -205,7 +205,7 @@ class Generator {
 
 		// Process posts and upload to CDN
 		foreach ( $posts as $post ) {
-			error_log( "[FDB Generator] Processing post ID {$post->ID}: {$post->post_title}" );
+			error_log( "[FIDABR Generator] Processing post ID {$post->ID}: {$post->post_title}" );
 
 			if ( $this->progress_manager ) {
 				$this->progress_manager->update_current_post( $post, 'processing' );
@@ -215,14 +215,14 @@ class Generator {
 			if ( $link ) {
 				$section->addLink( $link );
 				$links_added++;
-				error_log( "[FDB Generator] Added link for post ID {$post->ID}" );
+				error_log( "[FIDABR Generator] Added link for post ID {$post->ID}" );
 
 				if ( $this->progress_manager ) {
-					$cdn_url = get_post_meta( $post->ID, '_fdb_cdn_url', true );
+					$cdn_url = get_post_meta( $post->ID, '_fidabr_cdn_url', true );
 					$this->progress_manager->complete_post( $post, $cdn_url );
 				}
 			} else {
-				error_log( "[FDB Generator] WARNING: Failed to create link for post ID {$post->ID}" );
+				error_log( "[FIDABR Generator] WARNING: Failed to create link for post ID {$post->ID}" );
 
 				if ( $this->progress_manager ) {
 					$this->progress_manager->fail_post( $post, 'Failed to create link for post' );
@@ -235,7 +235,7 @@ class Generator {
 			$this->progress_manager->complete_section( $post_type, $links_added );
 		}
 
-		error_log( "[FDB Generator] Section '$section_name' created with $links_added links" );
+		error_log( "[FIDABR Generator] Section '$section_name' created with $links_added links" );
 		return $section;
 	}
 
@@ -247,14 +247,14 @@ class Generator {
 	 * @return Link|null Link instance or null on failure
 	 */
 	private function create_link_for_post( $post, $options ) {
-		error_log( "[FDB Generator] Creating link for post ID {$post->ID}: {$post->post_title}" );
+		error_log( "[FIDABR Generator] Creating link for post ID {$post->ID}: {$post->post_title}" );
 
 		// Get post content
 		$content = $this->content_crawler->extract_post_content( $post, $options );
-		error_log( "[FDB Generator] Extracted content length: " . strlen( $content ) . " chars" );
+		error_log( "[FIDABR Generator] Extracted content length: " . strlen( $content ) . " chars" );
 
 		if ( empty( $content ) ) {
-			error_log( "[FDB Generator] WARNING: Empty content extracted for post ID {$post->ID}, returning null link" );
+			error_log( "[FIDABR Generator] WARNING: Empty content extracted for post ID {$post->ID}, returning null link" );
 
 			if ( $this->progress_manager ) {
 				$this->progress_manager->fail_post( $post, 'Empty content extracted' );
@@ -265,22 +265,22 @@ class Generator {
 
 		// Check if we already have a CDN URL for this content
 		$content_hash = md5( $content );
-		$stored_cdn_url = get_post_meta( $post->ID, '_fdb_cdn_url', true );
-		$stored_content_hash = get_post_meta( $post->ID, '_fdb_content_hash', true );
+		$stored_cdn_url = get_post_meta( $post->ID, '_fidabr_cdn_url', true );
+		$stored_content_hash = get_post_meta( $post->ID, '_fidabr_content_hash', true );
 
 		$cdn_url = null;
 
 		if ( ! empty( $stored_cdn_url ) && $stored_content_hash === $content_hash ) {
 			// Content hasn't changed, reuse existing CDN URL
-			error_log( "[FDB Generator] Reusing existing CDN URL for post {$post->ID}: {$stored_cdn_url}" );
+			error_log( "[FIDABR Generator] Reusing existing CDN URL for post {$post->ID}: {$stored_cdn_url}" );
 			$cdn_url = $stored_cdn_url;
 		} else {
 			// Content changed or no stored URL, upload to CDN
-			error_log( "[FDB Generator] Content changed or no stored URL, uploading to CDN for post {$post->ID}" );
+			error_log( "[FIDABR Generator] Content changed or no stored URL, uploading to CDN for post {$post->ID}" );
 
 			// Generate filename
 			$filename = $this->generate_filename( $post );
-			error_log( "[FDB Generator] Generated filename: $filename" );
+			error_log( "[FIDABR Generator] Generated filename: $filename" );
 
 			// Update progress to show content extraction completed
 			if ( $this->progress_manager ) {
@@ -297,7 +297,7 @@ class Generator {
 
 			if ( is_wp_error( $upload_result ) ) {
 				// Log error but continue with other posts
-				error_log( "[FDB Generator] ERROR: CDN upload failed for post {$post->ID}: " . $upload_result->get_error_message() );
+				error_log( "[FIDABR Generator] ERROR: CDN upload failed for post {$post->ID}: " . $upload_result->get_error_message() );
 
 				if ( $this->progress_manager ) {
 					$this->progress_manager->fail_post( $post, $upload_result->get_error_message() );
@@ -307,17 +307,17 @@ class Generator {
 			}
 
 			$cdn_url = $upload_result['url'];
-			error_log( "[FDB Generator] CDN upload successful for post {$post->ID}, URL: " . $cdn_url );
+			error_log( "[FIDABR Generator] CDN upload successful for post {$post->ID}, URL: " . $cdn_url );
 
 			// Store new CDN URL and content hash in metadata
-			update_post_meta( $post->ID, '_fdb_cdn_url', $cdn_url );
-			update_post_meta( $post->ID, '_fdb_cdn_upload_time', current_time( 'timestamp' ) );
-			update_post_meta( $post->ID, '_fdb_content_hash', $content_hash );
+			update_post_meta( $post->ID, '_fidabr_cdn_url', $cdn_url );
+			update_post_meta( $post->ID, '_fidabr_cdn_upload_time', current_time( 'timestamp' ) );
+			update_post_meta( $post->ID, '_fidabr_content_hash', $content_hash );
 		}
 
 		// Create description
 		$description = $this->generate_post_description( $post, $options );
-		error_log( "[FDB Generator] Generated description length: " . strlen( $description ) . " chars" );
+		error_log( "[FIDABR Generator] Generated description length: " . strlen( $description ) . " chars" );
 
 		// Create link
 		$link = new Link();
@@ -328,7 +328,7 @@ class Generator {
 			$link->urlDetails( $description );
 		}
 
-		error_log( "[FDB Generator] Link created successfully for post ID {$post->ID}" );
+		error_log( "[FIDABR Generator] Link created successfully for post ID {$post->ID}" );
 		return $link;
 	}
 
@@ -421,8 +421,8 @@ class Generator {
 	 * @return array Status information
 	 */
 	public function get_generation_status() {
-		$last_generated = get_option( 'fdb_llms_last_generated', 0 );
-		$file_size      = get_option( 'fdb_llms_file_size', 0 );
+		$last_generated = get_option( 'fidabr_llms_last_generated', 0 );
+		$file_size      = get_option( 'fidabr_llms_file_size', 0 );
 		$llms_file_path = $this->get_llms_file_path();
 
 		return array(
@@ -470,8 +470,8 @@ class Generator {
 		}
 
 		// Clear stored options
-		delete_option( 'fdb_llms_last_generated' );
-		delete_option( 'fdb_llms_file_size' );
+		delete_option( 'fidabr_llms_last_generated' );
+		delete_option( 'fidabr_llms_file_size' );
 
 		return true;
 	}
@@ -504,12 +504,12 @@ class Generator {
 	public function build_processing_queue( $post_types, $options ) {
 		$queue = array();
 
-		error_log( "[FDB Generator] Building queue for post types: " . wp_json_encode( $post_types ) );
+		error_log( "[FIDABR Generator] Building queue for post types: " . wp_json_encode( $post_types ) );
 
 		foreach ( $post_types as $post_type ) {
 			$posts = $this->content_crawler->get_posts_for_type( $post_type, $options );
 
-			error_log( "[FDB Generator] Found " . count( $posts ) . " posts for type: {$post_type}" );
+			error_log( "[FIDABR Generator] Found " . count( $posts ) . " posts for type: {$post_type}" );
 
 			foreach ( $posts as $post ) {
 				$queue[] = array(
@@ -520,7 +520,7 @@ class Generator {
 			}
 		}
 
-		error_log( "[FDB Generator] Built processing queue with " . count( $queue ) . " items" );
+		error_log( "[FIDABR Generator] Built processing queue with " . count( $queue ) . " items" );
 		return $queue;
 	}
 
@@ -535,7 +535,7 @@ class Generator {
 		$options = $item['options'];
 
 		try {
-			error_log( "[FDB Generator] Processing single item: post ID {$post->ID}" );
+			error_log( "[FIDABR Generator] Processing single item: post ID {$post->ID}" );
 
 			if ( $this->progress_manager ) {
 				$this->progress_manager->update_current_post( $post, 'processing' );
@@ -545,24 +545,24 @@ class Generator {
 			$content = $this->content_crawler->extract_post_content( $post, $options );
 
 			if ( empty( $content ) ) {
-				error_log( "[FDB Generator] WARNING: Empty content extracted for post ID {$post->ID}" );
+				error_log( "[FIDABR Generator] WARNING: Empty content extracted for post ID {$post->ID}" );
 				return new \WP_Error( 'empty_content', 'Empty content extracted for post: ' . $post->post_title );
 			}
 
 			// Check if we already have a CDN URL for this content
 			$content_hash = md5( $content );
-			$stored_cdn_url = get_post_meta( $post->ID, '_fdb_cdn_url', true );
-			$stored_content_hash = get_post_meta( $post->ID, '_fdb_content_hash', true );
+			$stored_cdn_url = get_post_meta( $post->ID, '_fidabr_cdn_url', true );
+			$stored_content_hash = get_post_meta( $post->ID, '_fidabr_content_hash', true );
 
 			$cdn_url = null;
 
 			if ( ! empty( $stored_cdn_url ) && $stored_content_hash === $content_hash ) {
 				// Content hasn't changed, reuse existing CDN URL
-				error_log( "[FDB Generator] Reusing existing CDN URL for post {$post->ID}: {$stored_cdn_url}" );
+				error_log( "[FIDABR Generator] Reusing existing CDN URL for post {$post->ID}: {$stored_cdn_url}" );
 				$cdn_url = $stored_cdn_url;
 			} else {
 				// Content changed or no stored URL, upload to CDN
-				error_log( "[FDB Generator] Content changed or no stored URL, uploading to CDN for post {$post->ID}" );
+				error_log( "[FIDABR Generator] Content changed or no stored URL, uploading to CDN for post {$post->ID}" );
 
 				// Generate filename
 				$filename = $this->generate_filename( $post );
@@ -575,17 +575,17 @@ class Generator {
 				$upload_result = $this->cdn_client->upload_content( $content, $filename );
 
 				if ( is_wp_error( $upload_result ) ) {
-					error_log( "[FDB Generator] ERROR: CDN upload failed for post {$post->ID}: " . $upload_result->get_error_message() );
+					error_log( "[FIDABR Generator] ERROR: CDN upload failed for post {$post->ID}: " . $upload_result->get_error_message() );
 					return $upload_result;
 				}
 
 				$cdn_url = $upload_result['url'];
-				error_log( "[FDB Generator] CDN upload successful for post {$post->ID}, URL: " . $cdn_url );
+				error_log( "[FIDABR Generator] CDN upload successful for post {$post->ID}, URL: " . $cdn_url );
 
 				// Store new CDN URL and content hash in metadata
-				update_post_meta( $post->ID, '_fdb_cdn_url', $cdn_url );
-				update_post_meta( $post->ID, '_fdb_cdn_upload_time', current_time( 'timestamp' ) );
-				update_post_meta( $post->ID, '_fdb_content_hash', $content_hash );
+				update_post_meta( $post->ID, '_fidabr_cdn_url', $cdn_url );
+				update_post_meta( $post->ID, '_fidabr_cdn_upload_time', current_time( 'timestamp' ) );
+				update_post_meta( $post->ID, '_fidabr_content_hash', $content_hash );
 			}
 
 			return array(
@@ -596,7 +596,7 @@ class Generator {
 			);
 
 		} catch ( \Exception $e ) {
-			error_log( "[FDB Generator] ERROR: Exception processing post ID {$post->ID}: " . $e->getMessage() );
+			error_log( "[FIDABR Generator] ERROR: Exception processing post ID {$post->ID}: " . $e->getMessage() );
 			return new \WP_Error( 'processing_exception', 'Exception processing post: ' . $e->getMessage() );
 		}
 	}

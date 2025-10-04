@@ -52,7 +52,7 @@ class Settings {
 	 * @return array Current settings
 	 */
 	public function get_settings() {
-		$settings = get_option( 'fdb_llm_settings', array() );
+		$settings = get_option( 'fidabr_llm_settings', array() );
 		return wp_parse_args( $settings, $this->get_default_settings() );
 	}
 
@@ -63,7 +63,7 @@ class Settings {
 	 * @return bool True on success
 	 */
 	public function save_settings( $settings ) {
-		error_log( '[FDB Settings] Raw settings received: ' . wp_json_encode( $settings ) );
+		error_log( '[FIDABR Settings] Raw settings received: ' . wp_json_encode( $settings ) );
 
 		// Sanitize settings
 		$sanitized_settings = array(
@@ -78,41 +78,41 @@ class Settings {
 		// Ensure max_posts_per_type is within reasonable limits
 		$sanitized_settings['max_posts_per_type'] = max( 1, min( 1000, $sanitized_settings['max_posts_per_type'] ) );
 
-		error_log( '[FDB Settings] Sanitized settings: ' . wp_json_encode( $sanitized_settings ) );
+		error_log( '[FIDABR Settings] Sanitized settings: ' . wp_json_encode( $sanitized_settings ) );
 
 		// WordPress update_option returns false if the value is unchanged
 		// So we need to check if the settings actually changed or if there was an error
-		$current_settings = get_option( 'fdb_llm_settings', array() );
+		$current_settings = get_option( 'fidabr_llm_settings', array() );
 		$current_settings = wp_parse_args( $current_settings, $this->get_default_settings() );
 
-		error_log( '[FDB Settings] Current settings: ' . wp_json_encode( $current_settings ) );
+		error_log( '[FIDABR Settings] Current settings: ' . wp_json_encode( $current_settings ) );
 
 		// If settings are identical, consider it a success
 		if ( $this->settings_are_equal( $current_settings, $sanitized_settings ) ) {
-			error_log( '[FDB Settings] Settings are identical, returning true' );
+			error_log( '[FIDABR Settings] Settings are identical, returning true' );
 			return true;
 		}
 
 		// Try to update the option
-		error_log( '[FDB Settings] Attempting to update option' );
-		$result = update_option( 'fdb_llm_settings', $sanitized_settings );
-		error_log( '[FDB Settings] update_option result: ' . ( $result ? 'true' : 'false' ) );
+		error_log( '[FIDABR Settings] Attempting to update option' );
+		$result = update_option( 'fidabr_llm_settings', $sanitized_settings );
+		error_log( '[FIDABR Settings] update_option result: ' . ( $result ? 'true' : 'false' ) );
 
 		// Double-check that the settings were actually saved if update_option returned false
 		if ( ! $result ) {
-			error_log( '[FDB Settings] update_option returned false, double-checking...' );
-			$saved_settings = get_option( 'fdb_llm_settings', array() );
+			error_log( '[FIDABR Settings] update_option returned false, double-checking...' );
+			$saved_settings = get_option( 'fidabr_llm_settings', array() );
 			$saved_settings = wp_parse_args( $saved_settings, $this->get_default_settings() );
 
-			error_log( '[FDB Settings] Settings after attempted save: ' . wp_json_encode( $saved_settings ) );
+			error_log( '[FIDABR Settings] Settings after attempted save: ' . wp_json_encode( $saved_settings ) );
 
 			// If the settings match what we tried to save, it worked despite returning false
 			$final_result = $this->settings_are_equal( $saved_settings, $sanitized_settings );
-			error_log( '[FDB Settings] Final comparison result: ' . ( $final_result ? 'true' : 'false' ) );
+			error_log( '[FIDABR Settings] Final comparison result: ' . ( $final_result ? 'true' : 'false' ) );
 			return $final_result;
 		}
 
-		error_log( '[FDB Settings] Settings saved successfully' );
+		error_log( '[FIDABR Settings] Settings saved successfully' );
 		return $result;
 	}
 

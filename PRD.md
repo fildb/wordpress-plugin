@@ -102,11 +102,11 @@ src/
 
   ## Pages
 
-  - [Page Title](https://cdn.filodatabroker.com/site123/page1.md): Brief page description
+  - [Page Title](https://cdn.fidabr.com/site123/page1.md): Brief page description
 
   ## Posts
 
-  - [Post Title](https://cdn.filodatabroker.com/site123/post1.md): Brief post description
+  - [Post Title](https://cdn.fidabr.com/site123/post1.md): Brief post description
   ```
 
 - **CDN Architecture**: Local llms.txt contains links to CDN-hosted content files

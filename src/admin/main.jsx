@@ -4,11 +4,11 @@ import "./index.css";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes";
 import { ThemeProvider } from "@/components/theme-provider";
-const el = document.getElementById("fdb-admin-app");
+const el = document.getElementById("fidabr-admin-app");
 
 if (el) {
   ReactDOM.createRoot(el).render(
-    <ThemeProvider defaultTheme="light" storageKey="fdb-admin-theme">
+    <ThemeProvider defaultTheme="light" storageKey="fidabr-admin-theme">
       <RouterProvider router={router} />
     </ThemeProvider>,
   );

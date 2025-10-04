@@ -41,11 +41,11 @@ export default function LLMGenerator() {
 
   const loadSettings = async () => {
     try {
-      const response = await fetch(`${window.fdbAdmin.apiUrl}llm/settings`, {
+      const response = await fetch(`${window.fidabrAdmin.apiUrl}llm/settings`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "X-WP-Nonce": window.fdbAdmin.nonce,
+          "X-WP-Nonce": window.fidabrAdmin.nonce,
         },
       });
 
@@ -60,13 +60,16 @@ export default function LLMGenerator() {
 
   const loadPostTypes = async () => {
     try {
-      const response = await fetch(`${window.fdbAdmin.apiUrl}llm/post-types`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "X-WP-Nonce": window.fdbAdmin.nonce,
+      const response = await fetch(
+        `${window.fidabrAdmin.apiUrl}llm/post-types`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "X-WP-Nonce": window.fidabrAdmin.nonce,
+          },
         },
-      });
+      );
 
       const data = await response.json();
       if (response.ok && data) {
@@ -79,11 +82,11 @@ export default function LLMGenerator() {
 
   const loadStatus = async () => {
     try {
-      const response = await fetch(`${window.fdbAdmin.apiUrl}llm/status`, {
+      const response = await fetch(`${window.fidabrAdmin.apiUrl}llm/status`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "X-WP-Nonce": window.fdbAdmin.nonce,
+          "X-WP-Nonce": window.fidabrAdmin.nonce,
         },
       });
 
@@ -99,11 +102,11 @@ export default function LLMGenerator() {
   const saveSettings = async () => {
     setIsSaving(true);
     try {
-      const response = await fetch(`${window.fdbAdmin.apiUrl}llm/settings`, {
+      const response = await fetch(`${window.fidabrAdmin.apiUrl}llm/settings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-WP-Nonce": window.fdbAdmin.nonce,
+          "X-WP-Nonce": window.fidabrAdmin.nonce,
         },
         body: JSON.stringify(settings),
       });
@@ -140,11 +143,11 @@ export default function LLMGenerator() {
     }
 
     try {
-      const response = await fetch(`${window.fdbAdmin.apiUrl}llm/generate`, {
+      const response = await fetch(`${window.fidabrAdmin.apiUrl}llm/generate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-WP-Nonce": window.fdbAdmin.nonce,
+          "X-WP-Nonce": window.fidabrAdmin.nonce,
         },
         body: isStart ? JSON.stringify({ start: "1" }) : undefined,
       });
@@ -212,7 +215,6 @@ export default function LLMGenerator() {
     // Start the recursive processing
     processGeneration(true);
   };
-
 
   const cancelGeneration = () => {
     canceledRef.current = true;

@@ -22,8 +22,8 @@ class ContentCrawler {
 	 * @return array Array of WP_Post objects
 	 */
 	public function get_posts_for_type( $post_type, $options = array() ) {
-		error_log( "[FDB ContentCrawler] Getting posts for type: $post_type" );
-		error_log( "[FDB ContentCrawler] Options: " . json_encode( $options ) );
+		error_log( "[FIDABR ContentCrawler] Getting posts for type: $post_type" );
+		error_log( "[FIDABR ContentCrawler] Options: " . json_encode( $options ) );
 
 		$default_args = array(
 			'post_type'      => $post_type,
@@ -36,22 +36,22 @@ class ContentCrawler {
 		);
 
 		// Allow filtering of query args
-		$query_args = apply_filters( 'fdb_content_crawler_query_args', $default_args, $post_type, $options );
-		error_log( "[FDB ContentCrawler] Query args: " . json_encode( $query_args ) );
+		$query_args = apply_filters( 'fidabr_content_crawler_query_args', $default_args, $post_type, $options );
+		error_log( "[FIDABR ContentCrawler] Query args: " . json_encode( $query_args ) );
 
 		$posts = get_posts( $query_args );
-		error_log( "[FDB ContentCrawler] Raw posts found: " . count( $posts ) );
+		error_log( "[FIDABR ContentCrawler] Raw posts found: " . count( $posts ) );
 
 		if ( ! empty( $posts ) ) {
-			error_log( "[FDB ContentCrawler] First post sample: ID={$posts[0]->ID}, title={$posts[0]->post_title}, status={$posts[0]->post_status}" );
+			error_log( "[FIDABR ContentCrawler] First post sample: ID={$posts[0]->ID}, title={$posts[0]->post_title}, status={$posts[0]->post_status}" );
 		}
 
 		// Filter posts that should be excluded
 		$filtered_posts = array_filter( $posts, array( $this, 'should_include_post' ) );
-		error_log( "[FDB ContentCrawler] Posts after filtering: " . count( $filtered_posts ) );
+		error_log( "[FIDABR ContentCrawler] Posts after filtering: " . count( $filtered_posts ) );
 
 		if ( count( $posts ) !== count( $filtered_posts ) ) {
-			error_log( "[FDB ContentCrawler] Posts excluded: " . ( count( $posts ) - count( $filtered_posts ) ) );
+			error_log( "[FIDABR ContentCrawler] Posts excluded: " . ( count( $posts ) - count( $filtered_posts ) ) );
 		}
 
 		return $filtered_posts;
@@ -65,9 +65,9 @@ class ContentCrawler {
 	 * @return string Extracted and processed content
 	 */
 	public function extract_post_content( $post, $options = array() ) {
-		error_log( "[FDB ContentCrawler] Extracting content for post ID: {$post->ID}, title: {$post->post_title}" );
-		error_log( "[FDB ContentCrawler] Post content length: " . strlen( $post->post_content ) );
-		error_log( "[FDB ContentCrawler] Extract options: " . json_encode( $options ) );
+		error_log( "[FIDABR ContentCrawler] Extracting content for post ID: {$post->ID}, title: {$post->post_title}" );
+		error_log( "[FIDABR ContentCrawler] Post content length: " . strlen( $post->post_content ) );
+		error_log( "[FIDABR ContentCrawler] Extract options: " . json_encode( $options ) );
 
 		$content_parts = array();
 
@@ -78,22 +78,22 @@ class ContentCrawler {
 		if ( ! empty( $options['include_meta'] ) ) {
 			$meta_content = $this->extract_post_meta( $post );
 			$content_parts[] = $meta_content;
-			error_log( "[FDB ContentCrawler] Added metadata: " . strlen( $meta_content ) . " chars" );
+			error_log( "[FIDABR ContentCrawler] Added metadata: " . strlen( $meta_content ) . " chars" );
 		}
 
 		// Add excerpt if available
 		if ( ! empty( $post->post_excerpt ) ) {
 			$content_parts[] = '> ' . $post->post_excerpt;
-			error_log( "[FDB ContentCrawler] Added excerpt: " . strlen( $post->post_excerpt ) . " chars" );
+			error_log( "[FIDABR ContentCrawler] Added excerpt: " . strlen( $post->post_excerpt ) . " chars" );
 		}
 
 		// Process main content
 		$main_content = $this->process_post_content( $post->post_content );
 		if ( ! empty( $main_content ) ) {
 			$content_parts[] = $main_content;
-			error_log( "[FDB ContentCrawler] Processed main content: " . strlen( $main_content ) . " chars" );
+			error_log( "[FIDABR ContentCrawler] Processed main content: " . strlen( $main_content ) . " chars" );
 		} else {
-			error_log( "[FDB ContentCrawler] WARNING: Main content is empty after processing" );
+			error_log( "[FIDABR ContentCrawler] WARNING: Main content is empty after processing" );
 		}
 
 		// Add taxonomies if requested
@@ -101,23 +101,23 @@ class ContentCrawler {
 			$taxonomy_content = $this->extract_post_taxonomies( $post );
 			if ( ! empty( $taxonomy_content ) ) {
 				$content_parts[] = $taxonomy_content;
-				error_log( "[FDB ContentCrawler] Added taxonomies: " . strlen( $taxonomy_content ) . " chars" );
+				error_log( "[FIDABR ContentCrawler] Added taxonomies: " . strlen( $taxonomy_content ) . " chars" );
 			}
 		}
 
 		// Add post URL as reference
 		$permalink = get_permalink( $post );
 		$content_parts[] = "\n---\n**Original URL:** " . $permalink;
-		error_log( "[FDB ContentCrawler] Added permalink: $permalink" );
+		error_log( "[FIDABR ContentCrawler] Added permalink: $permalink" );
 
 		$final_content = implode( "\n\n", array_filter( $content_parts ) );
-		error_log( "[FDB ContentCrawler] Final content length: " . strlen( $final_content ) . " chars" );
+		error_log( "[FIDABR ContentCrawler] Final content length: " . strlen( $final_content ) . " chars" );
 
 		// Apply content filters
-		$filtered_content = apply_filters( 'fdb_extracted_post_content', $final_content, $post, $options );
+		$filtered_content = apply_filters( 'fidabr_extracted_post_content', $final_content, $post, $options );
 
 		if ( strlen( $filtered_content ) !== strlen( $final_content ) ) {
-			error_log( "[FDB ContentCrawler] Content modified by filters: " . strlen( $filtered_content ) . " chars" );
+			error_log( "[FIDABR ContentCrawler] Content modified by filters: " . strlen( $filtered_content ) . " chars" );
 		}
 
 		return $filtered_content;
@@ -131,27 +131,27 @@ class ContentCrawler {
 	 */
 	private function process_post_content( $content ) {
 		if ( empty( $content ) ) {
-			error_log( "[FDB ContentCrawler] WARNING: Empty content passed to process_post_content" );
+			error_log( "[FIDABR ContentCrawler] WARNING: Empty content passed to process_post_content" );
 			return '';
 		}
 
-		error_log( "[FDB ContentCrawler] Processing content, initial length: " . strlen( $content ) );
+		error_log( "[FIDABR ContentCrawler] Processing content, initial length: " . strlen( $content ) );
 
 		// Apply WordPress content filters (shortcodes, etc.)
 		$content = apply_filters( 'the_content', $content );
-		error_log( "[FDB ContentCrawler] After WordPress filters: " . strlen( $content ) . " chars" );
+		error_log( "[FIDABR ContentCrawler] After WordPress filters: " . strlen( $content ) . " chars" );
 
 		// Remove HTML tags but preserve structure
 		$content = $this->clean_html_content( $content );
-		error_log( "[FDB ContentCrawler] After HTML cleaning: " . strlen( $content ) . " chars" );
+		error_log( "[FIDABR ContentCrawler] After HTML cleaning: " . strlen( $content ) . " chars" );
 
 		// Normalize whitespace
 		$content = $this->normalize_whitespace( $content );
-		error_log( "[FDB ContentCrawler] After whitespace normalization: " . strlen( $content ) . " chars" );
+		error_log( "[FIDABR ContentCrawler] After whitespace normalization: " . strlen( $content ) . " chars" );
 
 		// Limit content length if needed
 		$content = $this->limit_content_length( $content );
-		error_log( "[FDB ContentCrawler] After length limiting: " . strlen( $content ) . " chars" );
+		error_log( "[FIDABR ContentCrawler] After length limiting: " . strlen( $content ) . " chars" );
 
 		return $content;
 	}
@@ -312,27 +312,27 @@ class ContentCrawler {
 	 * @return bool True if post should be included
 	 */
 	private function should_include_post( $post ) {
-		error_log( "[FDB ContentCrawler] Checking if post should be included: ID={$post->ID}, title={$post->post_title}" );
+		error_log( "[FIDABR ContentCrawler] Checking if post should be included: ID={$post->ID}, title={$post->post_title}" );
 
 		// Skip password-protected posts
 		if ( ! empty( $post->post_password ) ) {
-			error_log( "[FDB ContentCrawler] Excluding post {$post->ID}: password protected" );
+			error_log( "[FIDABR ContentCrawler] Excluding post {$post->ID}: password protected" );
 			return false;
 		}
 
 		// Skip posts marked as noindex (if using SEO plugins)
 		if ( $this->is_post_noindex( $post ) ) {
-			error_log( "[FDB ContentCrawler] Excluding post {$post->ID}: marked as noindex" );
+			error_log( "[FIDABR ContentCrawler] Excluding post {$post->ID}: marked as noindex" );
 			return false;
 		}
 
 		// Allow filtering
-		$should_include = apply_filters( 'fdb_should_include_post', true, $post );
+		$should_include = apply_filters( 'fidabr_should_include_post', true, $post );
 
 		if ( ! $should_include ) {
-			error_log( "[FDB ContentCrawler] Excluding post {$post->ID}: filtered out by 'fdb_should_include_post' filter" );
+			error_log( "[FIDABR ContentCrawler] Excluding post {$post->ID}: filtered out by 'fidabr_should_include_post' filter" );
 		} else {
-			error_log( "[FDB ContentCrawler] Including post {$post->ID}: passed all checks" );
+			error_log( "[FIDABR ContentCrawler] Including post {$post->ID}: passed all checks" );
 		}
 
 		return $should_include;
@@ -377,16 +377,16 @@ class ContentCrawler {
 			'objects'
 		);
 
-		error_log( "[FDB ContentCrawler] Found public post types: " . implode( ', ', array_keys( $post_types ) ) );
+		error_log( "[FIDABR ContentCrawler] Found public post types: " . implode( ', ', array_keys( $post_types ) ) );
 
 		// Remove attachment post type
 		unset( $post_types['attachment'] );
 
 		// Allow filtering
-		$filtered_post_types = apply_filters( 'fdb_available_post_types', $post_types );
+		$filtered_post_types = apply_filters( 'fidabr_available_post_types', $post_types );
 
 		if ( count( $filtered_post_types ) !== count( $post_types ) ) {
-			error_log( "[FDB ContentCrawler] Post types modified by filter: " . implode( ', ', array_keys( $filtered_post_types ) ) );
+			error_log( "[FIDABR ContentCrawler] Post types modified by filter: " . implode( ', ', array_keys( $filtered_post_types ) ) );
 		}
 
 		return $filtered_post_types;
@@ -398,7 +398,7 @@ class ContentCrawler {
 	 * @return array Content statistics
 	 */
 	public function get_content_stats() {
-		error_log( "[FDB ContentCrawler] Getting content statistics" );
+		error_log( "[FIDABR ContentCrawler] Getting content statistics" );
 
 		$post_types = $this->get_available_post_types();
 		$stats      = array();
@@ -414,10 +414,10 @@ class ContentCrawler {
 				'total_count'     => $total_count,
 			);
 
-			error_log( "[FDB ContentCrawler] Stats for $post_type: {$published_count} published, {$total_count} total" );
+			error_log( "[FIDABR ContentCrawler] Stats for $post_type: {$published_count} published, {$total_count} total" );
 		}
 
-		error_log( "[FDB ContentCrawler] Content stats generated for " . count( $stats ) . " post types" );
+		error_log( "[FIDABR ContentCrawler] Content stats generated for " . count( $stats ) . " post types" );
 		return $stats;
 	}
 }

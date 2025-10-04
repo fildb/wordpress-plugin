@@ -2,14 +2,14 @@
   "plugin_name": "FiloDataBroker",
   "plugin_description": "Automatically generates and manages llms.txt files according to the llmstxt.org standard with FiloDataBroker CDN integration.",
   "plugin_version": "1.0.0",
-  "plugin_file_name": "fdb-wp-plugin.php",
+  "plugin_file_name": "fidabr-plugin.php",
   "author_name": "Denis Perov",
   "author_uri": "https://github.com/imajus",
-  "text_domain": "filodatabroker",
+  "text_domain": "fidabr",
   "domain_path": "/languages",
   "main_class_name": "FiloDataBrokerPlugin",
-  "main_function_name": "fdb_wp_plugin_init",
-  "namespace": "FiloDataBrokerPlugin",
-  "plugin_prefix": "fdb",
-  "constant_prefix": "FDB"
+  "main_function_name": "fidabr_plugin_init",
+  "namespace": "FilpDataBrokerPlugin",
+  "plugin_prefix": "fidabr",
+  "constant_prefix": "FIDABR"
 }

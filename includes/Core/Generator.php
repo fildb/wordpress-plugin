@@ -307,10 +307,12 @@ class Generator {
 			}
 
 			$cdn_url = $upload_result['url'];
-			error_log( "[FIDABR Generator] CDN upload successful for post {$post->ID}, URL: " . $cdn_url );
+			$cdn_size = isset( $upload_result['size'] ) ? (int) $upload_result['size'] : 0;
+			error_log( "[FIDABR Generator] CDN upload successful for post {$post->ID}, URL: " . $cdn_url . ", Size: " . $cdn_size . " bytes" );
 
-			// Store new CDN URL and content hash in metadata
+			// Store new CDN URL, size, and content hash in metadata
 			update_post_meta( $post->ID, '_fidabr_cdn_url', $cdn_url );
+			update_post_meta( $post->ID, '_fidabr_cdn_size', $cdn_size );
 			update_post_meta( $post->ID, '_fidabr_cdn_upload_time', current_time( 'timestamp' ) );
 			update_post_meta( $post->ID, '_fidabr_content_hash', $content_hash );
 		}
@@ -580,10 +582,12 @@ class Generator {
 				}
 
 				$cdn_url = $upload_result['url'];
-				error_log( "[FIDABR Generator] CDN upload successful for post {$post->ID}, URL: " . $cdn_url );
+				$cdn_size = isset( $upload_result['size'] ) ? (int) $upload_result['size'] : 0;
+				error_log( "[FIDABR Generator] CDN upload successful for post {$post->ID}, URL: " . $cdn_url . ", Size: " . $cdn_size . " bytes" );
 
-				// Store new CDN URL and content hash in metadata
+				// Store new CDN URL, size, and content hash in metadata
 				update_post_meta( $post->ID, '_fidabr_cdn_url', $cdn_url );
+				update_post_meta( $post->ID, '_fidabr_cdn_size', $cdn_size );
 				update_post_meta( $post->ID, '_fidabr_cdn_upload_time', current_time( 'timestamp' ) );
 				update_post_meta( $post->ID, '_fidabr_content_hash', $content_hash );
 			}

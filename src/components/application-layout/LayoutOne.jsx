@@ -25,12 +25,12 @@ import Logo from "../Icons/Logo";
 import { clsx } from "clsx";
 
 const navigation = [
-  // {
-  //   name: "Dashboard",
-  //   href: "dashboard",
-  //   icon: Home,
-  //   current: true,
-  // },
+  {
+    name: "Dashboard",
+    href: "dashboard",
+    icon: Home,
+    current: true,
+  },
   // {
   //   name: "Inbox",
   //   href: "inbox",

@@ -40,8 +40,8 @@ class Menu {
 	public function menu() {
 
 		add_menu_page(
-			__( 'FiloDataBroker', 'fidabr' ),
-			__( 'FiloDataBroker', 'fidabr' ),
+			__( 'FIDABR', 'fidabr' ),
+			__( 'FIDABR', 'fidabr' ),
 			'manage_options',
 			$this->parent_slug,
 			array( $this, 'admin_page' ),
@@ -60,11 +60,19 @@ class Menu {
 		$submenu_pages = array(
 			array(
 				'parent_slug' => $this->parent_slug,
-				'page_title'  => __( 'Generator', 'fidabr' ),
-				'menu_title'  => __( 'Generator', 'fidabr' ),
+				'page_title'  => __( 'Dashboard', 'fidabr' ),
+				'menu_title'  => __( 'Dashboard', 'fidabr' ),
 				'capability'  => 'manage_options',
 				'menu_slug'   => $this->parent_slug,
 				'function'    => array( $this, 'admin_page' ),
+			),
+			array(
+				'parent_slug' => $this->parent_slug,
+				'page_title'  => __( 'Settings', 'fidabr' ),
+				'menu_title'  => __( 'Settings', 'fidabr' ),
+				'capability'  => 'manage_options',
+				'menu_slug'   => $plugin_url . '/#/settings',
+				'function'    => null,
 			),
 		);
 

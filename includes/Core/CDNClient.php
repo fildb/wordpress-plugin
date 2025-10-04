@@ -103,12 +103,14 @@ class CDNClient {
 		}
 
 		$cdn_url = $decoded_response['url'];
+		$cdn_size = isset( $decoded_response['size'] ) ? (int) $decoded_response['size'] : 0;
 
-		error_log('[CDN Client] URL: ' . $cdn_url);
+		error_log('[CDN Client] URL: ' . $cdn_url . ', Size: ' . $cdn_size . ' bytes');
 
 		return array(
 			'success' => true,
 			'url'     => $cdn_url,
+			'size'    => $cdn_size,
 			'site_id' => $site_id,
 		);
 	}

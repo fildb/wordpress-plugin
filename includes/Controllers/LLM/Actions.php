@@ -97,6 +97,71 @@ class Actions {
 	}
 
 	/**
+	 * Get statistics for dashboard
+	 *
+	 * @param \WP_REST_Request $request Request object
+	 * @return \WP_REST_Response|\WP_Error REST response
+	 */
+	public function get_statistics( $request = null ) {
+		global $wpdb;
+
+		$settings = $this->settings->get_settings();
+		$post_types = $settings['post_types'] ?? array( 'post', 'page' );
+
+		// Get total post/page counts
+		$total_posts = wp_count_posts( 'post' )->publish ?? 0;
+		$total_pages = wp_count_posts( 'page' )->publish ?? 0;
+
+		// Get posts/pages that have CDN URLs (included in LLM)
+		$posts_with_cdn = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(DISTINCT p.ID)
+				FROM {$wpdb->posts} p
+				INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+				WHERE p.post_type = %s
+				AND p.post_status = 'publish'
+				AND pm.meta_key = '_fidabr_cdn_url'
+				AND pm.meta_value != ''",
+				'post'
+			)
+		);
+
+		$pages_with_cdn = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(DISTINCT p.ID)
+				FROM {$wpdb->posts} p
+				INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+				WHERE p.post_type = %s
+				AND p.post_status = 'publish'
+				AND pm.meta_key = '_fidabr_cdn_url'
+				AND pm.meta_value != ''",
+				'page'
+			)
+		);
+
+		// Calculate total CDN storage used
+		$total_cdn_storage = $wpdb->get_var(
+			"SELECT SUM(CAST(pm.meta_value AS UNSIGNED))
+			FROM {$wpdb->postmeta} pm
+			INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+			WHERE pm.meta_key = '_fidabr_cdn_size'
+			AND p.post_status = 'publish'
+			AND CAST(pm.meta_value AS UNSIGNED) > 0"
+		);
+
+		$statistics = array(
+			'posts_in_llm'        => (int) $posts_with_cdn,
+			'total_posts'         => (int) $total_posts,
+			'pages_in_llm'        => (int) $pages_with_cdn,
+			'total_pages'         => (int) $total_pages,
+			'cdn_storage_used'    => (int) ( $total_cdn_storage ?? 0 ),
+			'cdn_storage_total'   => 1073741824, // 1GB in bytes
+		);
+
+		return rest_ensure_response( $statistics );
+	}
+
+	/**
 	 * Generate LLM file
 	 *
 	 * @param \WP_REST_Request $request Request object
@@ -399,6 +464,10 @@ class Actions {
 					array(
 						'key'     => '_fidabr_cdn_upload_time',
 						'compare' => 'EXISTS'
+					),
+					array(
+						'key'     => '_fidabr_cdn_size',
+						'compare' => 'EXISTS'
 					)
 				)
 			) );
@@ -407,7 +476,8 @@ class Actions {
 			$plugin_meta_keys = array(
 				'_fidabr_cdn_url',
 				'_fidabr_content_hash',
-				'_fidabr_cdn_upload_time'
+				'_fidabr_cdn_upload_time',
+				'_fidabr_cdn_size'
 			);
 
 			foreach ( $posts as $post ) {
@@ -426,16 +496,36 @@ class Actions {
 				}
 			}
 
-			error_log( "[FIDABR Actions] Cleared metadata from {$cleared_count} posts/pages" );
+			// Remove the LLMs.txt file
+			$file_removed = false;
+			$llms_file_path = $this->generator->get_llms_file_path();
+			if ( file_exists( $llms_file_path ) ) {
+				$file_removed = unlink( $llms_file_path );
+				if ( $file_removed ) {
+					error_log( "[FIDABR Actions] Removed LLMs.txt file: " . $llms_file_path );
+				} else {
+					error_log( "[FIDABR Actions] Failed to remove LLMs.txt file: " . $llms_file_path );
+				}
+			} else {
+				error_log( "[FIDABR Actions] LLMs.txt file does not exist at: " . $llms_file_path );
+			}
+
+			// Clear WordPress options that track file status
+			delete_option( 'fidabr_llms_last_generated' );
+			delete_option( 'fidabr_llms_file_size' );
+			error_log( "[FIDABR Actions] Cleared WordPress options for file tracking" );
+
+			error_log( "[FIDABR Actions] Reset complete - cleared metadata from {$cleared_count} posts/pages, file removed: " . ( $file_removed ? 'yes' : 'no' ) );
 
 			return rest_ensure_response( array(
-				'message' => "Successfully cleared metadata from {$cleared_count} posts/pages.",
-				'cleared_count' => $cleared_count
+				'message' => "Successfully reset plugin data. Cleared metadata from {$cleared_count} posts/pages" . ( $file_removed ? " and removed LLMs.txt file" : "" ) . ".",
+				'cleared_count' => $cleared_count,
+				'file_removed' => $file_removed
 			) );
 
 		} catch ( \Exception $e ) {
-			error_log( "[FIDABR Actions] ERROR: Exception clearing metadata: " . $e->getMessage() );
-			return new \WP_Error( 'clear_metadata_failed', 'Failed to clear metadata: ' . $e->getMessage(), array( 'status' => 500 ) );
+			error_log( "[FIDABR Actions] ERROR: Exception during reset: " . $e->getMessage() );
+			return new \WP_Error( 'reset_failed', 'Failed to reset plugin data: ' . $e->getMessage(), array( 'status' => 500 ) );
 		}
 	}
 

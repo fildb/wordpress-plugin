@@ -3,7 +3,7 @@ import ApplicationLayout from "../components/application-layout/LayoutOne";
 import Settings from "./pages/settings";
 import ErrorPage from "./pages/error/Error";
 // import Inbox from "./pages/inbox";
-// import Dashboard from "./pages/dashboard";
+import Dashboard from "./pages/dashboard";
 // import LoginPage from "./pages/login";
 // import Charts from "./pages/charts";
 
@@ -15,12 +15,12 @@ export const router = createHashRouter([
     children: [
       {
         path: "/",
-        element: <Settings />,
+        element: <Dashboard />,
       },
-      // {
-      //   path: "dashboard",
-      //   element: <Dashboard />,
-      // },
+      {
+        path: "dashboard",
+        element: <Dashboard />,
+      },
       // {
       //   path: "inbox",
       //   element: <Inbox />,

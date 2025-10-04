@@ -27,6 +27,7 @@ Route::prefix(
 		$route->post( '/llm/settings', '\FiloDataBrokerPlugin\Controllers\LLM\Actions@save_settings' );
 		$route->get( '/llm/post-types', '\FiloDataBrokerPlugin\Controllers\LLM\Actions@get_post_types' );
 		$route->get( '/llm/status', '\FiloDataBrokerPlugin\Controllers\LLM\Actions@get_status' );
+		$route->get( '/llm/statistics', '\FiloDataBrokerPlugin\Controllers\LLM\Actions@get_statistics' );
 		$route->post( '/llm/generate', '\FiloDataBrokerPlugin\Controllers\LLM\Actions@generate_file' );
 		$route->post( '/llm/clear-metadata', '\FiloDataBrokerPlugin\Controllers\LLM\Actions@clear_metadata' );
 		// Allow hooks to add more custom API routes.

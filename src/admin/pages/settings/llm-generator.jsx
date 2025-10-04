@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,9 +10,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Progress } from "@/components/ui/progress";
-import { Loader2, AlertCircle, CheckCircle, FileText } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export default function LLMGenerator() {
   const [settings, setSettings] = useState({
@@ -25,19 +23,12 @@ export default function LLMGenerator() {
   });
 
   const [postTypes, setPostTypes] = useState([]);
-  const [status, setStatus] = useState(null);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isClearing, setIsClearing] = useState(false);
-  const [message, setMessage] = useState(null);
-  const [progress, setProgress] = useState(null);
-  const canceledRef = useRef(false);
 
   // Load initial data
   useEffect(() => {
     loadSettings();
     loadPostTypes();
-    loadStatus();
   }, []);
 
   const loadSettings = async () => {
@@ -81,25 +72,6 @@ export default function LLMGenerator() {
     }
   };
 
-  const loadStatus = async () => {
-    try {
-      const response = await fetch(`${window.fidabrAdmin.apiUrl}llm/status`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "X-WP-Nonce": window.fidabrAdmin.nonce,
-        },
-      });
-
-      const data = await response.json();
-      if (response.ok && data) {
-        setStatus(data);
-      }
-    } catch (error) {
-      console.error("Failed to load status:", error);
-    }
-  };
-
   const saveSettings = async () => {
     setIsSaving(true);
     try {
@@ -112,166 +84,17 @@ export default function LLMGenerator() {
         body: JSON.stringify(settings),
       });
 
-      if (response.ok) {
-        setMessage({ type: "success", text: "Settings saved successfully!" });
-      } else {
-        const errorData = await response.json();
-        setMessage({
-          type: "error",
-          text: errorData.message || "Failed to save settings",
-        });
-      }
-    } catch (error) {
-      setMessage({ type: "error", text: "Failed to save settings" });
-    } finally {
-      setIsSaving(false);
-      setTimeout(() => setMessage(null), 3000);
-    }
-  };
-
-  const processGeneration = async (isStart = false) => {
-    // Check if canceled
-    if (canceledRef.current) {
-      setIsGenerating(false);
-      setMessage({
-        type: "warning",
-        text: "Generation was canceled",
-      });
-      setTimeout(() => {
-        setProgress(null);
-      }, 3000);
-      return;
-    }
-
-    try {
-      const response = await fetch(`${window.fidabrAdmin.apiUrl}llm/generate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-WP-Nonce": window.fidabrAdmin.nonce,
-        },
-        body: isStart ? JSON.stringify({ start: "1" }) : undefined,
-      });
-
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to process generation");
-      }
-
-      const data = await response.json();
-      setProgress(data);
-
-      if (data.finished) {
-        // Generation completed
-        setIsGenerating(false);
-        setMessage({
-          type: "success",
-          text: "LLM file generated successfully!",
-        });
-        loadStatus();
-        setTimeout(() => {
-          setProgress(null);
-        }, 3000);
-      } else {
-        // Continue with next item after a short delay
-        setTimeout(() => {
-          processGeneration(false).catch((error) => {
-            console.error("Error in recursive processing:", error);
-            setIsGenerating(false);
-            setMessage({
-              type: "error",
-              text: "Processing failed: " + error.message,
-            });
-            setTimeout(() => {
-              setProgress(null);
-            }, 3000);
-          });
-        }, 200);
+        console.error("Failed to save settings:", errorData.message || "Unknown error");
       }
     } catch (error) {
-      console.error("Error during processing:", error);
-      setIsGenerating(false);
-      setMessage({
-        type: "error",
-        text: error.message || "An unexpected error occurred",
-      });
-      setTimeout(() => {
-        setProgress(null);
-      }, 3000);
-    }
-  };
-
-  const generateFile = async () => {
-    setIsGenerating(true);
-    canceledRef.current = false;
-    setMessage(null);
-
-    // Show progress bar instantly with initial state
-    setProgress({
-      finished: false,
-      items: { parsed: 0, total: 0 },
-      last: null,
-    });
-
-    // Start the recursive processing
-    processGeneration(true);
-  };
-
-  const cancelGeneration = () => {
-    canceledRef.current = true;
-    setIsGenerating(false);
-  };
-
-  const clearMetadata = async () => {
-    if (
-      !confirm(
-        "Are you sure you want to clear all custom metadata from posts and pages? This action cannot be undone.",
-      )
-    ) {
-      return;
-    }
-
-    setIsClearing(true);
-    setMessage(null);
-
-    try {
-      const response = await fetch(
-        `${window.fidabrAdmin.apiUrl}llm/clear-metadata`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-WP-Nonce": window.fidabrAdmin.nonce,
-          },
-        },
-      );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setMessage({
-          type: "success",
-          text: `Successfully cleared metadata from ${
-            data.cleared_count || 0
-          } posts/pages.`,
-        });
-        loadStatus(); // Refresh status after clearing
-      } else {
-        setMessage({
-          type: "error",
-          text: data.message || "Failed to clear metadata",
-        });
-      }
-    } catch (error) {
-      setMessage({
-        type: "error",
-        text: "Failed to clear metadata: " + error.message,
-      });
+      console.error("Failed to save settings:", error);
     } finally {
-      setIsClearing(false);
-      setTimeout(() => setMessage(null), 5000);
+      setIsSaving(false);
     }
   };
+
 
   const handlePostTypeChange = (postType, checked) => {
     setSettings((prev) => ({
@@ -284,157 +107,6 @@ export default function LLMGenerator() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div></div>
-        <div className="flex gap-2">
-          {isGenerating && (
-            <Button
-              onClick={cancelGeneration}
-              variant="outline"
-              className="border-red-300 text-red-600 hover:bg-red-50">
-              Cancel
-            </Button>
-          )}
-          <Button
-            onClick={clearMetadata}
-            disabled={isGenerating || isClearing}
-            variant="outline"
-            className="border-orange-300 text-orange-600 hover:bg-orange-50">
-            {isClearing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Clearing...
-              </>
-            ) : (
-              "Clear Metadata"
-            )}
-          </Button>
-          <Button
-            onClick={generateFile}
-            disabled={isGenerating || isClearing}
-            className="bg-blue-600 hover:bg-blue-700">
-            {isGenerating ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              "Generate Now"
-            )}
-          </Button>
-        </div>
-      </div>
-
-      {progress && (
-        <Card className="border-blue-200 bg-blue-50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-blue-800">Generation Progress</CardTitle>
-            <CardDescription className="text-blue-600">
-              Processing items...
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Progress</span>
-                <span>
-                  {progress.items.parsed} / {progress.items.total}
-                </span>
-              </div>
-              <Progress
-                value={
-                  progress.items.total > 0
-                    ? (progress.items.parsed / progress.items.total) * 100
-                    : 0
-                }
-                className="h-2"
-              />
-            </div>
-
-            {progress.last && (
-              <div className="text-sm">
-                <Label className="text-xs text-muted-foreground">
-                  Last Processed
-                </Label>
-                <p className="font-medium flex items-center gap-1">
-                  <FileText className="h-3 w-3" />
-                  {progress.last.title} ({progress.last.type})
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {message && (
-        <Alert
-          className={
-            message.type === "error"
-              ? "border-red-500 bg-red-50"
-              : "border-green-500 bg-green-50"
-          }>
-          {message.type === "error" ? (
-            <AlertCircle className="h-4 w-4 text-red-600" />
-          ) : (
-            <CheckCircle className="h-4 w-4 text-green-600" />
-          )}
-          <AlertDescription
-            className={
-              message.type === "error" ? "text-red-700" : "text-green-700"
-            }>
-            {message.text}
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Status Card */}
-      {status && (
-        <Card>
-          <CardHeader>
-            <CardTitle>File Status</CardTitle>
-            <CardDescription>
-              Current status of your llms.txt file
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <Label className="text-sm text-muted-foreground">Status</Label>
-                <p
-                  className={`font-medium ${
-                    status.file_exists ? "text-green-600" : "text-red-600"
-                  }`}>
-                  {status.file_exists ? "Generated" : "Not Generated"}
-                </p>
-              </div>
-              <div>
-                <Label className="text-sm text-muted-foreground">
-                  Last Generated
-                </Label>
-                <p className="font-medium">{status.last_generated_hr}</p>
-              </div>
-              <div>
-                <Label className="text-sm text-muted-foreground">
-                  File Size
-                </Label>
-                <p className="font-medium">{status.file_size_hr}</p>
-              </div>
-              <div>
-                <Label className="text-sm text-muted-foreground">
-                  File URL
-                </Label>
-                <a
-                  href={status.file_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium text-blue-600 hover:text-blue-800">
-                  View File
-                </a>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Settings Card */}
       <Card>

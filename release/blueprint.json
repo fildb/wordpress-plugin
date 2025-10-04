@@ -1,0 +1,20 @@
+{
+  "landingPage": "/wp-admin/admin.php?page=fidabr",
+  "preferredVersions": {
+    "php": "7.2",
+    "wp": "5.9"
+  },
+  "steps": [
+    {
+      "step": "installPlugin",
+      "pluginData": {
+        "resource": "url",
+        "url": "https://github.com/fildb/wordpress-plugin/releases/latest/download/filo-data-broker.zip"
+      }
+    },
+    {
+      "step": "login",
+      "username": "admin"
+    }
+  ]
+}

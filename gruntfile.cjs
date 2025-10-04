@@ -329,6 +329,24 @@ grunt.initConfig({
       src: distFiles,
       dest: "/filo-data-broker",
     },
+    blueprint: {
+      options: {
+        mode: "zip",
+        archive: `./release/blueprint.zip`,
+      },
+      files: [
+        {
+          src: ["./release/filo-data-broker.zip"],
+          dest: "/",
+          flatten: true,
+        },
+        {
+          src: ["blueprint.json"],
+          dest: "/",
+          flatten: true,
+        },
+      ],
+    },
   },
 });
 
@@ -347,8 +365,9 @@ grunt.registerTask("release", [
   "copy:main",
   "compress:main",
   "compress:version",
-  "compress:todocs",
+  // "compress:todocs",
   "clean:mapFiles",
+  "compress:blueprint",
 ]);
 
 grunt.registerTask("rename", [

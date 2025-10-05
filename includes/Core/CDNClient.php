@@ -55,7 +55,7 @@ class CDNClient {
 
 		$args = array(
 			'method'      => 'POST',
-			'timeout'     => 30,
+			'timeout'     => 120,
 			'redirection' => 5,
 			'httpversion' => '1.1',
 			'blocking'    => true,

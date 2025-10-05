@@ -1,7 +1,7 @@
 {
   "plugin_name": "FiloDataBroker",
   "plugin_description": "Automatically generates and manages llms.txt files according to the llmstxt.org standard with FiloDataBroker CDN integration.",
-  "plugin_version": "1.1.0",
+  "plugin_version": "1.1.1",
   "plugin_file_name": "fidabr-plugin.php",
   "author_name": "Denis Perov",
   "author_uri": "https://github.com/imajus",

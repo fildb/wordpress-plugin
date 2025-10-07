@@ -2,6 +2,8 @@
 
 namespace FiloDataBrokerPlugin\Interfaces;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Interface Migration
  *

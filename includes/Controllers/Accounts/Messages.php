@@ -2,6 +2,8 @@
 
 namespace FiloDataBrokerPlugin\Controllers\Accounts;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Class Messages
  *

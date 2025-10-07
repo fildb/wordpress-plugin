@@ -1,11 +1,13 @@
 <?php
 /**
  * Route Configuration.
- * 
+ *
  * @since 1.0.0
  */
 
 namespace FiloDataBrokerPlugin\Libs\API;
+
+defined( 'ABSPATH' ) || exit;
 
 use FiloDataBrokerPlugin\Libs\API\ApiRouteException;
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace FiloDataBrokerPlugin\Assets;
 
+defined( 'ABSPATH' ) || exit;
+
 use FiloDataBrokerPlugin\Core\Template;
 use FiloDataBrokerPlugin\Traits\Base;
 use FiloDataBrokerPlugin\Libs\Assets;

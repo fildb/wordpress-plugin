@@ -1,9 +1,11 @@
 <?php
 namespace FiloDataBrokerPlugin\Libs\Utils;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Shortcode Class for WordPress
- * 
+ *
  * This class allows dynamic creation of shortcodes in WordPress with attributes and content support.
  */
 class Shortcode {

@@ -2,6 +2,8 @@
 
 namespace FiloDataBrokerPlugin\Core;
 
+defined( 'ABSPATH' ) || exit;
+
 use FiloDataBrokerPlugin\Database\Migrations\Accounts;
 use FiloDataBrokerPlugin\Database\Seeders\Accounts as SeedersAccounts;
 use FiloDataBrokerPlugin\Traits\Base;

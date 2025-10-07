@@ -2,6 +2,8 @@
 
 namespace FiloDataBrokerPlugin\Admin;
 
+defined( 'ABSPATH' ) || exit;
+
 use FiloDataBrokerPlugin\Traits\Base;
 
 /**

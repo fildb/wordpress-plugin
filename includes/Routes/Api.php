@@ -9,6 +9,8 @@
 
 namespace FiloDataBrokerPlugin\Routes;
 
+defined( 'ABSPATH' ) || exit;
+
 use FiloDataBrokerPlugin\Libs\API\Route;
 
 Route::prefix(
@@ -47,7 +49,7 @@ Route::prefix(
 
 	// Verify nonce for POST requests
 	if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
-		$nonce = isset( $_SERVER['HTTP_X_WP_NONCE'] ) ? $_SERVER['HTTP_X_WP_NONCE'] : '';
+		$nonce = isset( $_SERVER['HTTP_X_WP_NONCE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_WP_NONCE'] ) ) : '';
 		if ( ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
 			return false;
 		}

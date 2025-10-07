@@ -9,6 +9,8 @@
 
 namespace FiloDataBrokerPlugin\Models;
 
+defined( 'ABSPATH' ) || exit;
+
 use Prappo\WpEloquent\Database\Eloquent\Model;
 
 /**

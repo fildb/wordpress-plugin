@@ -9,6 +9,8 @@
 
 namespace FiloDataBrokerPlugin\Controllers\Posts;
 
+defined( 'ABSPATH' ) || exit;
+
 use FiloDataBrokerPlugin\Models\Posts;
 
 class Actions {

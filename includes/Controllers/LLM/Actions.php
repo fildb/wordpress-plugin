@@ -174,7 +174,7 @@ class Actions {
 	 * @return \WP_REST_Response|\WP_Error REST response
 	 */
 	public function generate_file( $request = null ) {
-		$start = $request ? $request->get_param( 'start' ) : null;
+		$start = $request ? sanitize_text_field( $request->get_param( 'start' ) ) : null;
 		$is_start = ! empty( $start );
 
 		try {
@@ -500,7 +500,7 @@ class Actions {
 			$file_removed = false;
 			$llms_file_path = $this->generator->get_llms_file_path();
 			if ( file_exists( $llms_file_path ) ) {
-				$file_removed = unlink( $llms_file_path );
+				$file_removed = wp_delete_file( $llms_file_path );
 				if ( $file_removed ) {
 					error_log( "[FIDABR Actions] Removed LLMs.txt file: " . $llms_file_path );
 				} else {

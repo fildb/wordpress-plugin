@@ -2,6 +2,8 @@
 
 namespace FiloDataBrokerPlugin\Traits;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Trait Base
  *

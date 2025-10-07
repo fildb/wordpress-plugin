@@ -9,6 +9,8 @@
 
 namespace FiloDataBrokerPlugin\Libs\DatabaseConnection;
 
+defined( 'ABSPATH' ) || exit;
+
 use Prappo\WpEloquent\Application;
 
 Application::bootWp();

@@ -1,9 +1,11 @@
 <?php
 namespace FiloDataBrokerPlugin\Libs\Utils;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Custom Post Type
- * 
+ *
  * @since 1.0.0
  */
 class CPT

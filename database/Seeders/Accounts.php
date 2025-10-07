@@ -8,6 +8,8 @@
 
 namespace FiloDataBrokerPlugin\Database\Seeders;
 
+defined( 'ABSPATH' ) || exit;
+
 use Prappo\WpEloquent\Database\Capsule\Manager as Capsule;
 /**
  * Class Accounts

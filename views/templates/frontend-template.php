@@ -7,6 +7,8 @@
  * @package FiloDataBrokerPlugin
  */
 
+defined( 'ABSPATH' ) || exit;
+
 use FiloDataBrokerPlugin\Assets\Frontend;
 
 

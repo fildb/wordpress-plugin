@@ -8,6 +8,8 @@
 
 namespace FiloDataBrokerPlugin\Libs\API;
 
+defined( 'ABSPATH' ) || exit;
+
 use Exception;
 
 /**

@@ -8,6 +8,8 @@
 
 namespace FiloDataBrokerPlugin\Libs\API;
 
+defined( 'ABSPATH' ) || exit;
+
 use FiloDataBrokerPlugin\Libs\API\ApiRouteException;
 
 /**
@@ -383,7 +385,7 @@ class Route {
 				}
 
 				if ( ! isset( $route->prefix ) ) {
-					throw new ApiRouteException( "{$route->endpoint} must have a prefix" );
+					throw new ApiRouteException( esc_html( "{$route->endpoint} must have a prefix" ) );
 				}
 
 				$endpoint = self::convert_to_regex( $route->endpoint );

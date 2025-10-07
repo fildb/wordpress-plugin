@@ -375,11 +375,19 @@ class Generator {
 	 * @return string File path for llms.txt
 	 */
 	public function get_llms_file_path() {
-		if ( defined( 'FLYWHEEL_PLUGIN_DIR' ) ) {
-			return trailingslashit( dirname( ABSPATH ) ) . 'www/' . 'llms.txt';
-		} else {
-			return trailingslashit( ABSPATH ) . 'llms.txt';
+		// Ensure get_home_path() is available
+		if ( ! function_exists( 'get_home_path' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
+
+		$home_path = get_home_path();
+
+		// Special handling for Flywheel hosting
+		if ( defined( 'FLYWHEEL_PLUGIN_DIR' ) ) {
+			return trailingslashit( dirname( $home_path ) ) . 'www/' . 'llms.txt';
+		}
+
+		return trailingslashit( $home_path ) . 'llms.txt';
 	}
 
 	/**

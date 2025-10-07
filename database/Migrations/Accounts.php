@@ -9,6 +9,8 @@
 
 namespace FiloDataBrokerPlugin\Database\Migrations;
 
+defined( 'ABSPATH' ) || exit;
+
 use FiloDataBrokerPlugin\Interfaces\Migration;
 use Prappo\WpEloquent\Database\Capsule\Manager as Capsule;
 use Prappo\WpEloquent\Database\Schema\Blueprint;

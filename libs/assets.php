@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace FiloDataBrokerPlugin\Libs\Assets;
 
+defined( 'ABSPATH' ) || exit;
+
 use Exception;
 use WP_HTML_Tag_Processor;
 

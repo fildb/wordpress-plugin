@@ -1,6 +1,7 @@
 <?php
 /**
  * Plugin Name: FiloDataBroker
+ * Plugin URI: https://github.com/fildb/wordpress-plugin
  * Description: WordPress plugin that automatically generates `llms.txt` files according to llmstxt.org standard, with FiloDataBroker CDN integration for optimized AI/LLM content consumption.
  * Author: Denis Perov
  * License: GPLv2

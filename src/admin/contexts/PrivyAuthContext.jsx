@@ -1,12 +1,13 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { usePrivy } from "@privy-io/react-auth";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useSessionSigners } from "@privy-io/react-auth";
 
 const PrivyAuthContext = createContext(null);
 
 export function PrivyAuthProvider({ children }) {
-  const { ready, authenticated, user, login, logout } = usePrivy();
+  const { ready: privyReady, authenticated, user, login, logout } = usePrivy();
   const { addSessionSigners } = useSessionSigners();
+  const { ready: walletsReady } = useWallets();
   const [sessionSignerAdded, setSessionSignerAdded] = useState(false);
 
   // Save Privy User ID to backend when authenticated
@@ -18,10 +19,10 @@ export function PrivyAuthProvider({ children }) {
 
   // Add session signer to embedded wallet after authentication
   useEffect(() => {
-    if (authenticated && user && !sessionSignerAdded) {
+    if (authenticated && user && walletsReady && !sessionSignerAdded) {
       addSessionSignerToWallet();
     }
-  }, [authenticated, user, sessionSignerAdded]);
+  }, [authenticated, user, walletsReady, sessionSignerAdded]);
 
   const savePrivyUserToBackend = async (privyUserId) => {
     try {
@@ -74,8 +75,7 @@ export function PrivyAuthProvider({ children }) {
     try {
       // Get the user's embedded wallet address
       const embeddedWallet = user?.linkedAccounts?.find(
-        (account) =>
-          account.type === "wallet" && account.walletClientType === "privy",
+        (account) => account.type === "wallet" && "id" in account,
       );
 
       if (!embeddedWallet) {
@@ -122,7 +122,7 @@ export function PrivyAuthProvider({ children }) {
   };
 
   const value = {
-    isPrivyReady: ready,
+    isPrivyReady: privyReady,
     isPrivyAuthenticated: authenticated,
     privyUser: user,
     loginWithPrivy: login,

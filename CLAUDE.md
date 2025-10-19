@@ -146,6 +146,7 @@ Data is passed from PHP to JavaScript using WordPress `wp_localize_script()`:
 - **Tailwind CSS** for styling
 - **shadcn/ui** components (configured in `components.json`)
 - **TypeScript** support enabled
+- **Privy** for web3 wallet authentication and embedded wallets
 
 ### Build Configuration
 
@@ -236,3 +237,39 @@ Shortcode::add()
 - Shared components go in `src/components/`
 - Admin-specific components go in `src/admin/components/`
 - Use Storybook for component development and testing
+
+### Privy Authentication Integration
+
+The plugin uses Privy for web3 wallet authentication, supporting multiple login methods:
+
+- **Setup**: Privy App ID configured in `.env` file (`VITE_PRIVY_APP_ID`)
+- **Network**: Filecoin Calibration testnet (Chain ID: 314159)
+- **Login Methods**: Web3 wallets, email, SMS, Google, Twitter
+- **Embedded Wallets**: Auto-created for users without wallets
+- **Context**: `src/admin/contexts/PrivyAuthContext.jsx` provides auth state
+- **Components**: `src/admin/components/privy/PrivyLoginButton.jsx` for authentication
+- **Provider Setup**: Configured in `src/admin/main.jsx` wrapping the application
+- **Independence**: Privy authentication is separate from WordPress authentication
+
+**Getting Started with Privy:**
+
+1. Create a Privy account at https://dashboard.privy.io
+2. Create a new app and copy the App ID
+3. Add the App ID to `.env` file: `VITE_PRIVY_APP_ID=your_app_id_here`
+4. Configure allowed origins in Privy Dashboard to include your development and production URLs
+
+**Using Privy in Components:**
+
+```jsx
+import { usePrivyAuth } from "@/admin/contexts/PrivyAuthContext";
+
+function MyComponent() {
+  const { isPrivyAuthenticated, privyUser, loginWithPrivy, logoutFromPrivy } = usePrivyAuth();
+
+  if (!isPrivyAuthenticated) {
+    return <button onClick={loginWithPrivy}>Login</button>;
+  }
+
+  return <div>Welcome {privyUser.email || privyUser.wallet?.address}</div>;
+}
+```

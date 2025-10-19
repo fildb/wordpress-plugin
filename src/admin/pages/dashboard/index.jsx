@@ -18,8 +18,11 @@ import {
   HardDrive,
   BarChart3
 } from "lucide-react";
+import { usePrivyAuth } from "@/admin/contexts/PrivyAuthContext";
+import { PrivyLoginButton } from "@/admin/components/privy/PrivyLoginButton";
 
 export default function DashboardPage() {
+  const { isPrivyAuthenticated, privyUser } = usePrivyAuth();
   const [status, setStatus] = useState(null);
   const [statistics, setStatistics] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -260,41 +263,47 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          {isGenerating && (
-            <Button
-              onClick={cancelGeneration}
-              variant="outline"
-              className="border-red-300 text-red-600 hover:bg-red-50">
-              Cancel
-            </Button>
+          {!isPrivyAuthenticated ? (
+            <PrivyLoginButton />
+          ) : (
+            <>
+              {isGenerating && (
+                <Button
+                  onClick={cancelGeneration}
+                  variant="outline"
+                  className="border-red-300 text-red-600 hover:bg-red-50">
+                  Cancel
+                </Button>
+              )}
+              <Button
+                onClick={clearMetadata}
+                disabled={isGenerating || isClearing}
+                variant="outline"
+                className="border-orange-300 text-orange-600 hover:bg-orange-50">
+                {isClearing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Resetting...
+                  </>
+                ) : (
+                  "Reset"
+                )}
+              </Button>
+              <Button
+                onClick={generateFile}
+                disabled={isGenerating || isClearing}
+                className="bg-blue-600 hover:bg-blue-700">
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  "Generate Now"
+                )}
+              </Button>
+            </>
           )}
-          <Button
-            onClick={clearMetadata}
-            disabled={isGenerating || isClearing}
-            variant="outline"
-            className="border-orange-300 text-orange-600 hover:bg-orange-50">
-            {isClearing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Resetting...
-              </>
-            ) : (
-              "Reset"
-            )}
-          </Button>
-          <Button
-            onClick={generateFile}
-            disabled={isGenerating || isClearing}
-            className="bg-blue-600 hover:bg-blue-700">
-            {isGenerating ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              "Generate Now"
-            )}
-          </Button>
         </div>
       </div>
 

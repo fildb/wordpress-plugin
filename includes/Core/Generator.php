@@ -543,9 +543,10 @@ class Generator {
 	public function process_single_item( $item ) {
 		$post = $item['post'];
 		$options = $item['options'];
+		$privy_user_id = isset( $item['privy_user_id'] ) ? $item['privy_user_id'] : null;
 
 		try {
-			error_log( "[FIDABR Generator] Processing single item: post ID {$post->ID}" );
+			error_log( "[FIDABR Generator] Processing single item: post ID {$post->ID}, Privy User: " . ( $privy_user_id ?? 'none' ) );
 
 			if ( $this->progress_manager ) {
 				$this->progress_manager->update_current_post( $post, 'processing' );
@@ -581,8 +582,8 @@ class Generator {
 					$this->progress_manager->update_current_post( $post, 'uploading' );
 				}
 
-				// Upload to CDN
-				$upload_result = $this->cdn_client->upload_content( $content, $filename );
+				// Upload to CDN with Privy User ID
+				$upload_result = $this->cdn_client->upload_content( $content, $filename, $privy_user_id );
 
 				if ( is_wp_error( $upload_result ) ) {
 					error_log( "[FIDABR Generator] ERROR: CDN upload failed for post {$post->ID}: " . $upload_result->get_error_message() );

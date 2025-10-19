@@ -30,3 +30,7 @@ composer.lock
 *.sw?
 
 /vendor/
+
+# Environment variables
+.env*
+!.env.example

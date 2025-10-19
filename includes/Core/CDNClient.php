@@ -25,10 +25,20 @@ class CDNClient {
 	 *
 	 * @param string $content Content to upload
 	 * @param string $filename Filename for the content
+	 * @param string $privy_user_id Privy User ID (required)
 	 * @param string $site_id Site identifier
 	 * @return array|WP_Error Response with CDN URL or error
 	 */
-	public function upload_content( $content, $filename, $site_id = '' ) {
+	public function upload_content( $content, $filename, $privy_user_id, $site_id = '' ) {
+		// Validate required Privy User ID
+		if ( empty( $privy_user_id ) ) {
+			error_log( '[CDN Client] ERROR: Privy User ID is required for CDN upload' );
+			return new \WP_Error(
+				'missing_privy_user_id',
+				'Privy User ID is required for CDN upload'
+			);
+		}
+
 		if ( empty( $site_id ) ) {
 			$site_id = $this->get_site_id();
 		}
@@ -38,18 +48,23 @@ class CDNClient {
 
 		// Build multipart form data body
 		$body = '';
-		
+
 		// Add file field
 		$body .= "--{$boundary}\r\n";
 		$body .= "Content-Disposition: form-data; name=\"file\"; filename=\"{$filename}\"\r\n";
 		$body .= "Content-Type: text/plain\r\n\r\n";
 		$body .= $content . "\r\n";
-		
+
+		// Add privyUserId field (required)
+		$body .= "--{$boundary}\r\n";
+		$body .= "Content-Disposition: form-data; name=\"privyUserId\"\r\n\r\n";
+		$body .= $privy_user_id . "\r\n";
+
 		// Add site_id field
 		$body .= "--{$boundary}\r\n";
 		$body .= "Content-Disposition: form-data; name=\"site_id\"\r\n\r\n";
 		$body .= $site_id . "\r\n";
-		
+
 		// End boundary
 		$body .= "--{$boundary}--\r\n";
 
@@ -67,7 +82,7 @@ class CDNClient {
 			'body'        => $body,
 		);
 
-		error_log('[CDN Client] Uploading to CDN: ' . self::CDN_ENDPOINT);
+		error_log('[CDN Client] Uploading to CDN: ' . self::CDN_ENDPOINT . ', Privy User: ' . $privy_user_id);
 
 		$response = wp_remote_post( self::CDN_ENDPOINT, $args );
 
@@ -140,10 +155,11 @@ class CDNClient {
 	 * Batch upload multiple content items
 	 *
 	 * @param array $content_items Array of content items with 'content', 'filename' keys
+	 * @param string $privy_user_id Privy User ID (required)
 	 * @param string $site_id Site identifier
 	 * @return array Results array with success/error for each item
 	 */
-	public function batch_upload( $content_items, $site_id = '' ) {
+	public function batch_upload( $content_items, $privy_user_id, $site_id = '' ) {
 		$results = array();
 
 		foreach ( $content_items as $index => $item ) {
@@ -158,6 +174,7 @@ class CDNClient {
 			$result = $this->upload_content(
 				$item['content'],
 				$item['filename'],
+				$privy_user_id,
 				$site_id
 			);
 
@@ -170,24 +187,6 @@ class CDNClient {
 		}
 
 		return $results;
-	}
-
-	/**
-	 * Test CDN connectivity
-	 *
-	 * @return bool|WP_Error True if connection successful, WP_Error otherwise
-	 */
-	public function test_connection() {
-		$test_content = 'Test connection from FiloDataBroker Plugin - ' . current_time( 'mysql' );
-		$test_filename = 'test-connection-' . time() . '.txt';
-
-		$result = $this->upload_content( $test_content, $test_filename );
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		return true;
 	}
 
 }

@@ -32,6 +32,9 @@ Route::prefix(
 		$route->get( '/llm/statistics', '\FiloDataBrokerPlugin\Controllers\LLM\Actions@get_statistics' );
 		$route->post( '/llm/generate', '\FiloDataBrokerPlugin\Controllers\LLM\Actions@generate_file' );
 		$route->post( '/llm/clear-metadata', '\FiloDataBrokerPlugin\Controllers\LLM\Actions@clear_metadata' );
+		// Privy authentication routes.
+		$route->post( '/llm/privy-auth', '\FiloDataBrokerPlugin\Controllers\LLM\Actions@save_privy_user' );
+		$route->post( '/llm/privy-logout', '\FiloDataBrokerPlugin\Controllers\LLM\Actions@delete_privy_user' );
 		// Allow hooks to add more custom API routes.
 		do_action( 'fidabr_plugin_api', $route );
 	}

@@ -178,10 +178,18 @@ class Actions {
 		$is_start = ! empty( $start );
 
 		try {
+			// Get stored Privy User ID from WordPress options (required)
+			$privy_user_id = get_option( 'fidabr_privy_user_id' );
+
+			if ( empty( $privy_user_id ) ) {
+				error_log( "[FIDABR Actions] ERROR: Privy User ID not found in storage" );
+				return new \WP_Error( 'privy_auth_required', 'Privy authentication is required. Please log in with Privy to continue.', array( 'status' => 401 ) );
+			}
+
 			// Check if this is starting fresh or continuing
 			$is_generation_active = ProgressManager::is_generation_active();
 
-			error_log( "[FIDABR Actions] is_start: " . ( $is_start ? 'true' : 'false' ) . ", generation_active: " . ( $is_generation_active ? 'true' : 'false' ) );
+			error_log( "[FIDABR Actions] is_start: " . ( $is_start ? 'true' : 'false' ) . ", generation_active: " . ( $is_generation_active ? 'true' : 'false' ) . ", privy_user_id: " . ( $privy_user_id ?? 'none' ) );
 
 			if ( $is_start ) {
 				// Starting fresh - clear any existing progress
@@ -209,12 +217,13 @@ class Actions {
 				$progress_manager->initialize( $settings['post_types'], $total_posts );
 				$progress_manager->set_processing_queue( $queue );
 
-				// Store settings in session for consistency
+				// Store settings and privy_user_id in session for consistency
 				$progress_data = $progress_manager->get_progress();
 				$progress_data['settings'] = $settings;
+				$progress_data['privy_user_id'] = $privy_user_id;
 				$progress_manager->save_progress( $progress_data );
 
-				error_log( "[FIDABR Actions] Started new generation with {$total_posts} posts" );
+				error_log( "[FIDABR Actions] Started new generation with {$total_posts} posts for Privy user: {$privy_user_id}" );
 
 			} else {
 				// Continue existing generation
@@ -236,8 +245,9 @@ class Actions {
 				return new \WP_Error( 'session_error', 'Session error', array( 'status' => 500 ) );
 			}
 
-			// Get stored settings from session for consistency (define early for use in finalization)
+			// Get stored settings and privy_user_id from session for consistency (define early for use in finalization)
 			$stored_settings = isset( $progress_data['settings'] ) ? $progress_data['settings'] : $this->settings->get_settings();
+			$stored_privy_user_id = isset( $progress_data['privy_user_id'] ) ? $progress_data['privy_user_id'] : null;
 
 			// Check if already completed
 			if ( $progress_data['status'] === 'completed' ) {
@@ -283,8 +293,9 @@ class Actions {
 				) );
 			}
 
-			// Update the next_item with stored settings to ensure consistency
+			// Update the next_item with stored settings and privy_user_id to ensure consistency
 			$next_item['options'] = $stored_settings;
+			$next_item['privy_user_id'] = $stored_privy_user_id;
 
 			// Process the item
 			$generator = new Generator( $progress_manager );
@@ -526,6 +537,68 @@ class Actions {
 		} catch ( \Exception $e ) {
 			error_log( "[FIDABR Actions] ERROR: Exception during reset: " . $e->getMessage() );
 			return new \WP_Error( 'reset_failed', 'Failed to reset plugin data: ' . $e->getMessage(), array( 'status' => 500 ) );
+		}
+	}
+
+	/**
+	 * Save Privy User ID to WordPress options
+	 *
+	 * @param \WP_REST_Request $request Request object
+	 * @return \WP_REST_Response|\WP_Error REST response
+	 */
+	public function save_privy_user( $request ) {
+		$privy_user_id = $request ? sanitize_text_field( $request->get_param( 'privyUserId' ) ) : null;
+
+		if ( empty( $privy_user_id ) ) {
+			error_log( "[FIDABR Actions] ERROR: Privy User ID is required" );
+			return new \WP_Error( 'missing_privy_user_id', 'Privy User ID is required', array( 'status' => 400 ) );
+		}
+
+		// Store in WordPress options
+		$updated = update_option( 'fidabr_privy_user_id', $privy_user_id );
+
+		if ( $updated ) {
+			error_log( "[FIDABR Actions] Stored Privy User ID: {$privy_user_id}" );
+			return rest_ensure_response( array(
+				'message' => 'Privy authentication saved successfully',
+				'privyUserId' => $privy_user_id
+			) );
+		} else {
+			// Check if value is already the same
+			$existing = get_option( 'fidabr_privy_user_id' );
+			if ( $existing === $privy_user_id ) {
+				error_log( "[FIDABR Actions] Privy User ID already stored: {$privy_user_id}" );
+				return rest_ensure_response( array(
+					'message' => 'Privy authentication already saved',
+					'privyUserId' => $privy_user_id
+				) );
+			}
+
+			error_log( "[FIDABR Actions] ERROR: Failed to store Privy User ID" );
+			return new \WP_Error( 'save_failed', 'Failed to save Privy authentication', array( 'status' => 500 ) );
+		}
+	}
+
+	/**
+	 * Delete Privy User ID from WordPress options
+	 *
+	 * @param \WP_REST_Request $request Request object
+	 * @return \WP_REST_Response|\WP_Error REST response
+	 */
+	public function delete_privy_user( $request = null ) {
+		$deleted = delete_option( 'fidabr_privy_user_id' );
+
+		if ( $deleted ) {
+			error_log( "[FIDABR Actions] Deleted Privy User ID from storage" );
+			return rest_ensure_response( array(
+				'message' => 'Privy authentication cleared successfully'
+			) );
+		} else {
+			// Option might not exist, which is fine
+			error_log( "[FIDABR Actions] No Privy User ID to delete" );
+			return rest_ensure_response( array(
+				'message' => 'No Privy authentication to clear'
+			) );
 		}
 	}
 
